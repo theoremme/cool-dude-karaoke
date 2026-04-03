@@ -124,15 +124,27 @@ class YouTubeService {
       const response = await axios.get(`${this.baseUrl}/playlistItems`, { params });
       this.quotaUsedToday += YOUTUBE_CONFIG.QUOTA_COST_LIST;
 
-      const items = response.data.items.map((item) => ({
-        videoId: item.contentDetails.videoId,
-        title: item.snippet.title,
-        thumbnail:
-          item.snippet.thumbnails?.medium?.url ||
-          item.snippet.thumbnails?.default?.url || '',
-        channelName: item.snippet.videoOwnerChannelTitle || '',
-        position: item.snippet.position,
-      }));
+      const items = response.data.items
+        .filter((item) => {
+          // Skip private, deleted, and unavailable videos
+          const title = item.snippet.title || '';
+          return (
+            title !== 'Private video' &&
+            title !== 'Deleted video' &&
+            !title.startsWith('[Private') &&
+            !title.startsWith('[Deleted') &&
+            item.snippet.thumbnails
+          );
+        })
+        .map((item) => ({
+          videoId: item.contentDetails.videoId,
+          title: item.snippet.title,
+          thumbnail:
+            item.snippet.thumbnails?.medium?.url ||
+            item.snippet.thumbnails?.default?.url || '',
+          channelName: item.snippet.videoOwnerChannelTitle || '',
+          position: item.snippet.position,
+        }));
 
       allItems = allItems.concat(items);
       pageToken = response.data.nextPageToken;

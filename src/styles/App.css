@@ -100,9 +100,7 @@ body {
 
 .panel-left {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
+  overflow-y: auto;
   min-width: 0;
 }
 
@@ -116,14 +114,11 @@ body {
 }
 
 .search-section {
-  flex: 1;
-  overflow-y: auto;
   padding: 16px 20px;
 }
 
 /* ==================== VIDEO PLAYER ==================== */
 .video-player {
-  flex-shrink: 0;
 }
 
 .player-wrapper {
@@ -131,6 +126,7 @@ body {
 }
 
 .player-container {
+  position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   background: #000;
@@ -171,33 +167,38 @@ body {
   color: #888;
 }
 
-.player-info-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.btn-popout {
-  background: none;
-  border: 1px solid rgba(0, 200, 255, 0.3);
+.btn-popout-overlay {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 10;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 200, 255, 0.4);
   color: #00c8ff;
-  font-size: 11px;
-  font-weight: 600;
-  padding: 3px 10px;
-  border-radius: 4px;
+  font-size: 18px;
+  width: 36px;
+  height: 36px;
+  border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
-  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
 }
 
-.btn-popout:hover {
-  background: rgba(0, 200, 255, 0.1);
+.player-container:hover .btn-popout-overlay {
+  opacity: 1;
+}
+
+.btn-popout-overlay:hover {
+  background: rgba(0, 200, 255, 0.15);
   border-color: #00c8ff;
-  box-shadow: 0 0 8px rgba(0, 200, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.4);
 }
 
-.btn-popout:active {
-  transform: scale(0.95);
+.btn-popout-overlay:active {
+  transform: scale(0.9);
 }
 
 /* Popped-out placeholder */
@@ -471,6 +472,8 @@ body {
 
 /* Neon button base */
 .btn-neon {
+  padding: 8px 16px;
+  font-size: 13px;
   border: 1px solid #00c8ff;
   border-radius: 5px;
   background: transparent;

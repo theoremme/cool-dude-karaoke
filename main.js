@@ -154,6 +154,41 @@ function injectPopoutCSS() {
   }
 }
 
+function waitForPopoutVideo() {
+  if (!popoutWindow || popoutWindow.isDestroyed()) return;
+
+  const check = setInterval(async () => {
+    if (!popoutWindow || popoutWindow.isDestroyed()) {
+      clearInterval(check);
+      return;
+    }
+    try {
+      const playing = await popoutWindow.webContents.executeJavaScript(`
+        (() => {
+          const v = document.querySelector('video');
+          return v && v.readyState >= 3 && !v.paused;
+        })()
+      `);
+      if (playing) {
+        clearInterval(check);
+        if (popoutWindow && !popoutWindow.isDestroyed()) {
+          popoutWindow.show();
+        }
+      }
+    } catch (e) {
+      clearInterval(check);
+    }
+  }, 200);
+
+  // Safety: show anyway after 8 seconds
+  setTimeout(() => {
+    clearInterval(check);
+    if (popoutWindow && !popoutWindow.isDestroyed() && !popoutWindow.isVisible()) {
+      popoutWindow.show();
+    }
+  }, 8000);
+}
+
 function startPopoutPolling() {
   stopPopoutPolling();
   let lastEnded = false;
@@ -292,25 +327,40 @@ ipcMain.handle('popout-open', async (event, { videoId, currentTime, title }) => 
   const url = `https://www.youtube.com/watch?v=${videoId}&autoplay=1${t > 0 ? `&t=${t}` : ''}`;
   popoutWindow.loadURL(url);
 
+  let popoutCssInjectedForUrl = null;
+
   popoutWindow.webContents.on('dom-ready', () => {
-    injectPopoutCSS();
-    // Show window after CSS is injected
-    setTimeout(() => {
-      if (popoutWindow && !popoutWindow.isDestroyed()) {
-        popoutWindow.show();
-      }
-    }, 200);
+    const currentUrl = popoutWindow.webContents.getURL();
+    if (popoutCssInjectedForUrl !== currentUrl) {
+      popoutCssInjectedForUrl = currentUrl;
+      injectPopoutCSS();
+    }
+    // Wait for video to actually play before showing window
+    waitForPopoutVideo();
   });
-  popoutWindow.webContents.on('did-navigate-in-page', injectPopoutCSS);
+  popoutWindow.webContents.on('did-navigate-in-page', () => {
+    popoutCssInjectedForUrl = null; // Reset for SPA navigation
+    injectPopoutCSS();
+  });
 
   startPopoutPolling();
+
+  // Grab timestamp before window closes, then notify main window
+  popoutWindow.on('close', async () => {
+    let currentTime = 0;
+    try {
+      currentTime = await popoutWindow.webContents.executeJavaScript(
+        'document.querySelector("video")?.currentTime || 0'
+      );
+    } catch (e) {}
+    if (mainWindow && !mainWindow.isDestroyed()) {
+      mainWindow.webContents.send('popout-closed', currentTime);
+    }
+  });
 
   popoutWindow.on('closed', () => {
     stopPopoutPolling();
     popoutWindow = null;
-    if (mainWindow && !mainWindow.isDestroyed()) {
-      mainWindow.webContents.send('popout-closed');
-    }
   });
 
   return { success: true };

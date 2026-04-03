@@ -45,7 +45,7 @@ contextBridge.exposeInMainWorld('api', {
   popoutPlay: () => ipcRenderer.invoke('popout-play'),
   popoutPause: () => ipcRenderer.invoke('popout-pause'),
   onPopoutClosed: (callback) => {
-    ipcRenderer.on('popout-closed', () => callback());
+    ipcRenderer.on('popout-closed', (_event, currentTime) => callback(currentTime));
   },
   onPopoutVideoEnded: (callback) => {
     ipcRenderer.on('popout-video-ended', () => callback());

@@ -63,6 +63,34 @@ const VideoPlayer = () => {
   const pendingUrl = useRef(null);
   const [webviewVisible, setWebviewVisible] = useState(false);
 
+  // Track CSS injection per navigation to prevent duplicates
+  const cssInjectedForUrl = useRef(null);
+
+  // Wait for video to actually be playing before revealing webview
+  const waitForVideoPlaying = useCallback((webview) => {
+    const check = setInterval(async () => {
+      try {
+        const playing = await webview.executeJavaScript(`
+          (() => {
+            const v = document.querySelector('video');
+            return v && v.readyState >= 3 && !v.paused;
+          })()
+        `);
+        if (playing) {
+          clearInterval(check);
+          setWebviewVisible(true);
+        }
+      } catch (e) {
+        clearInterval(check);
+      }
+    }, 200);
+    // Safety timeout — show anyway after 5 seconds
+    setTimeout(() => {
+      clearInterval(check);
+      setWebviewVisible(true);
+    }, 5000);
+  }, []);
+
   // --- Webview setup (for docked mode) ---
   useEffect(() => {
     const webview = webviewRef.current;
@@ -70,9 +98,14 @@ const VideoPlayer = () => {
 
     const handleDomReady = () => {
       webviewReady.current = true;
-      webview.insertCSS(YOUTUBE_CLEANUP_CSS).then(() => {
-        setTimeout(() => setWebviewVisible(true), 150);
-      });
+      const currentUrl = webview.getURL();
+      // Only inject CSS once per navigation
+      if (cssInjectedForUrl.current !== currentUrl) {
+        cssInjectedForUrl.current = currentUrl;
+        webview.insertCSS(YOUTUBE_CLEANUP_CSS).then(() => {
+          waitForVideoPlaying(webview);
+        });
+      }
       startPolling();
 
       if (pendingUrl.current) {
@@ -86,7 +119,7 @@ const VideoPlayer = () => {
       webview.removeEventListener('dom-ready', handleDomReady);
       stopPolling();
     };
-  }, []);
+  }, [waitForVideoPlaying]);
 
   const startPolling = useCallback(() => {
     stopPolling();
@@ -129,11 +162,12 @@ const VideoPlayer = () => {
 
   // --- Popout event listeners ---
   useEffect(() => {
-    window.api.onPopoutClosed(() => {
+    window.api.onPopoutClosed((currentTime) => {
       setIsPopout(false);
-      // Resume in webview — reload current video
+      // Resume in webview at the same timestamp
       if (currentVideoIdRef.current && webviewRef.current && webviewReady.current) {
-        const url = `https://www.youtube.com/watch?v=${currentVideoIdRef.current}&autoplay=1`;
+        const t = Math.floor(currentTime || 0);
+        const url = `https://www.youtube.com/watch?v=${currentVideoIdRef.current}&autoplay=1${t > 0 ? `&t=${t}` : ''}`;
         setWebviewVisible(false);
         webviewRef.current.loadURL(url);
       }
@@ -251,17 +285,15 @@ const VideoPlayer = () => {
               visibility: webviewVisible ? 'visible' : 'hidden',
             }}
           />
+          <button className="btn-popout-overlay" onClick={handlePopout} title="Pop out video">
+            ⧉
+          </button>
         </div>
         {currentItem && (
           <div className="player-info">
             <span className="now-playing-label">NOW PLAYING</span>
             <h3 className="now-playing-title">{currentItem.title}</h3>
-            <div className="player-info-row">
-              <p className="now-playing-channel">{currentItem.channelName}</p>
-              <button className="btn-popout" onClick={handlePopout} title="Pop out video">
-                ⧉ Pop Out
-              </button>
-            </div>
+            <p className="now-playing-channel">{currentItem.channelName}</p>
           </div>
         )}
       </div>
