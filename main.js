@@ -3,7 +3,7 @@ const path = require('path');
 const http = require('http');
 const fs = require('fs');
 
-require('dotenv').config();
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { youtubeService } = require('./src/services/YouTubeService');
 const { playlistSyncService } = require('./src/services/PlaylistSyncService');
@@ -113,6 +113,7 @@ async function createWindow() {
     title: 'Cool Dude Karaoke',
     icon: path.join(__dirname, 'src', 'assets', 'cool-dude-karaoke-logo-v2.png'),
     backgroundColor: '#000000',
+    autoHideMenuBar: true,
   });
 
   mainWindow.loadURL(`http://127.0.0.1:${port}`);
