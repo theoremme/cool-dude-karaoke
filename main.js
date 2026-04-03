@@ -7,6 +7,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const { youtubeService } = require('./src/services/YouTubeService');
 const { playlistSyncService } = require('./src/services/PlaylistSyncService');
+const { apiKeyManager } = require('./src/services/ApiKeyManager');
 
 let mainWindow;
 let popoutWindow;
@@ -258,6 +259,30 @@ ipcMain.handle('youtube-video-details', async (event, videoIds) => {
   } catch (error) {
     return { success: false, error: error.message };
   }
+});
+
+// --- API Key Management ---
+
+ipcMain.handle('apikey-get-status', async () => {
+  return apiKeyManager.getKeyStatus();
+});
+
+ipcMain.handle('apikey-set', async (event, apiKey) => {
+  try {
+    await apiKeyManager.setUserProvidedKey(apiKey);
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: error.message };
+  }
+});
+
+ipcMain.handle('apikey-clear', async () => {
+  apiKeyManager.clearUserProvidedKey();
+  return { success: true };
+});
+
+ipcMain.handle('apikey-validate', async (event, apiKey) => {
+  return apiKeyManager.validateKey(apiKey);
 });
 
 // Connect to a YouTube playlist

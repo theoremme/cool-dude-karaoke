@@ -1,6 +1,12 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
+  // API Key management
+  apikeyGetStatus: () => ipcRenderer.invoke('apikey-get-status'),
+  apikeySet: (apiKey) => ipcRenderer.invoke('apikey-set', apiKey),
+  apikeyClear: () => ipcRenderer.invoke('apikey-clear'),
+  apikeyValidate: (apiKey) => ipcRenderer.invoke('apikey-validate', apiKey),
+
   // YouTube search
   searchYouTube: (query) => ipcRenderer.invoke('youtube-search', query),
 

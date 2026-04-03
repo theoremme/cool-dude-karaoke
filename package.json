@@ -50,11 +50,15 @@
       ".env"
     ],
     "win": {
-      "target": ["portable"],
+      "target": [
+        "portable"
+      ],
       "icon": "src/assets/cool-dude-karaoke-logo-v2.png"
     },
     "mac": {
-      "target": ["dmg"],
+      "target": [
+        "dmg"
+      ],
       "icon": "src/assets/cool-dude-karaoke-logo-v2.png",
       "category": "public.app-category.entertainment"
     }

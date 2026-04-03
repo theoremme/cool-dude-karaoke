@@ -1,12 +1,32 @@
 /**
- * API Key Manager
+ * API Key Manager (v1.1)
  *
  * Abstraction layer for API key management.
- * v1.0: Returns embedded key only
- * v1.1: Will support user-provided keys with zero changes to API calls
+ * Checks for user-provided key first, falls back to embedded default.
+ * Persists user key in a JSON file in the app's user data directory.
  */
 
 const { YOUTUBE_CONFIG } = require('../config/youtube.config');
+const { app } = require('electron');
+const path = require('path');
+const fs = require('fs');
+
+function getSettingsPath() {
+  return path.join(app.getPath('userData'), 'api-settings.json');
+}
+
+function readSettings() {
+  try {
+    const data = fs.readFileSync(getSettingsPath(), 'utf-8');
+    return JSON.parse(data);
+  } catch (e) {
+    return {};
+  }
+}
+
+function writeSettings(settings) {
+  fs.writeFileSync(getSettingsPath(), JSON.stringify(settings, null, 2));
+}
 
 class ApiKeyManager {
   constructor() {
@@ -15,29 +35,19 @@ class ApiKeyManager {
 
   /**
    * Get the active API key.
-   * v1.0: Always returns embedded key.
-   * v1.1: Will check for user-provided key first, fall back to embedded.
+   * Returns user-provided key if set, otherwise embedded default.
    */
   async getKey() {
-    return YOUTUBE_CONFIG.DEFAULT_API_KEY;
-
-    /* v1.1 Implementation:
-    const userKey = await this.getUserProvidedKey();
+    const userKey = this.getUserProvidedKey();
     if (userKey) return userKey;
     return YOUTUBE_CONFIG.DEFAULT_API_KEY;
-    */
   }
 
   /**
    * Check if using the default embedded key.
    */
   async isUsingDefaultKey() {
-    return true;
-
-    /* v1.1:
-    const userKey = await this.getUserProvidedKey();
-    return !userKey;
-    */
+    return !this.getUserProvidedKey();
   }
 
   /**
@@ -56,49 +66,51 @@ class ApiKeyManager {
     }
   }
 
-  // ============================================
-  // FUTURE METHODS (Stubbed for v1.1)
-  // ============================================
-
-  async getUserProvidedKey() {
-    return null;
-
-    /* v1.1:
-    try {
-      const encryptedKey = localStorage.getItem(YOUTUBE_CONFIG.STORAGE_KEY_USER_API_KEY);
-      if (!encryptedKey) return null;
-      return await this.decrypt(encryptedKey);
-    } catch (error) {
-      console.error('Error reading user API key:', error);
-      return null;
-    }
-    */
+  /**
+   * Get user-provided API key from storage.
+   */
+  getUserProvidedKey() {
+    const settings = readSettings();
+    return settings.userApiKey || null;
   }
 
+  /**
+   * Validate and save a user-provided API key.
+   */
   async setUserProvidedKey(apiKey) {
-    throw new Error('Custom API keys not yet supported');
-
-    /* v1.1:
     const validation = await this.validateKey(apiKey);
-    if (!validation.valid) throw new Error(validation.error);
-    const encryptedKey = await this.encrypt(apiKey);
-    localStorage.setItem(YOUTUBE_CONFIG.STORAGE_KEY_USER_API_KEY, encryptedKey);
-    localStorage.setItem(YOUTUBE_CONFIG.STORAGE_KEY_API_MODE, 'custom');
+    if (!validation.valid) {
+      throw new Error(validation.error);
+    }
+    const settings = readSettings();
+    settings.userApiKey = apiKey;
+    writeSettings(settings);
     this.cachedKey = apiKey;
     return { success: true };
-    */
   }
 
-  async clearUserProvidedKey() {
-    /* v1.1:
-    localStorage.removeItem(YOUTUBE_CONFIG.STORAGE_KEY_USER_API_KEY);
-    localStorage.setItem(YOUTUBE_CONFIG.STORAGE_KEY_API_MODE, 'default');
+  /**
+   * Clear user-provided key and revert to default.
+   */
+  clearUserProvidedKey() {
+    const settings = readSettings();
+    delete settings.userApiKey;
+    writeSettings(settings);
     this.cachedKey = null;
-    */
   }
 
-  async encrypt(value) { return value; }
-  async decrypt(value) { return value; }
+  /**
+   * Get current key status info for the UI.
+   */
+  getKeyStatus() {
+    const userKey = this.getUserProvidedKey();
+    return {
+      isUsingCustomKey: !!userKey,
+      maskedKey: userKey
+        ? userKey.slice(0, 8) + '...' + userKey.slice(-4)
+        : null,
+    };
+  }
 }
 
 const apiKeyManager = new ApiKeyManager();

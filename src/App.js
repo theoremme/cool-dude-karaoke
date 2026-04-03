@@ -5,6 +5,7 @@ import SearchResults from './components/SearchResults';
 import VideoPlayer from './components/VideoPlayer';
 import PlaylistQueue from './components/PlaylistQueue';
 import PlaylistSync from './components/PlaylistSync';
+import Settings from './components/Settings';
 import logo from './assets/cool-dude-karaoke-logo-v2.png';
 import './styles/App.css';
 
@@ -12,6 +13,7 @@ const AppContent = () => {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSearch = async (query) => {
     setLoading(true);
@@ -36,10 +38,16 @@ const AppContent = () => {
     <div className="app">
       <header className="app-header">
         <img src={logo} alt="Cool Dude Karaoke" className="app-logo" />
+        <button
+          className="btn-settings"
+          onClick={() => setSettingsOpen(true)}
+          title="Settings"
+        >
+          &#9881;
+        </button>
       </header>
 
       <div className="app-body">
-        {/* Left panel: Player + Search */}
         <div className="panel-left">
           <VideoPlayer />
           <div className="search-section">
@@ -50,12 +58,13 @@ const AppContent = () => {
           </div>
         </div>
 
-        {/* Right panel: Playlist Queue + Sync */}
         <div className="panel-right">
           <PlaylistQueue />
           <PlaylistSync />
         </div>
       </div>
+
+      <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
     </div>
   );
 };
