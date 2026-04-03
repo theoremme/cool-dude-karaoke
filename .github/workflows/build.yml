@@ -18,6 +18,9 @@ jobs:
 
       - run: npm ci
 
+      - name: Create .env
+        run: echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
+
       - run: npm run dist
 
       - uses: actions/upload-artifact@v4
@@ -35,6 +38,9 @@ jobs:
           node-version: 20
 
       - run: npm ci
+
+      - name: Create .env
+        run: echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
 
       - run: npm run dist -- --mac --x64 --arm64
 
