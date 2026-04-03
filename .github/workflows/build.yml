@@ -21,7 +21,7 @@ jobs:
       - name: Create .env
         run: echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
 
-      - run: npm run dist
+      - run: npm run dist -- --publish never
 
       - uses: actions/upload-artifact@v4
         with:
@@ -42,7 +42,7 @@ jobs:
       - name: Create .env
         run: echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
 
-      - run: npm run dist -- --mac --x64 --arm64
+      - run: npm run dist -- --mac --x64 --arm64 --publish never
 
       - uses: actions/upload-artifact@v4
         with:
