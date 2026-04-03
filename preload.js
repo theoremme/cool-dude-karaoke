@@ -1,7 +1,6 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('api', {
-
   // YouTube search
   searchYouTube: (query) => ipcRenderer.invoke('youtube-search', query),
 
@@ -35,5 +34,24 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.removeAllListeners('sync-new-items');
     ipcRenderer.removeAllListeners('sync-status');
     ipcRenderer.removeAllListeners('sync-error');
+  },
+
+  // Popout player
+  popoutOpen: (videoId, currentTime, title) =>
+    ipcRenderer.invoke('popout-open', { videoId, currentTime, title }),
+  popoutClose: () => ipcRenderer.invoke('popout-close'),
+  popoutLoadVideo: (videoId, title) =>
+    ipcRenderer.invoke('popout-load-video', { videoId, title }),
+  popoutPlay: () => ipcRenderer.invoke('popout-play'),
+  popoutPause: () => ipcRenderer.invoke('popout-pause'),
+  onPopoutClosed: (callback) => {
+    ipcRenderer.on('popout-closed', () => callback());
+  },
+  onPopoutVideoEnded: (callback) => {
+    ipcRenderer.on('popout-video-ended', () => callback());
+  },
+  removePopoutListeners: () => {
+    ipcRenderer.removeAllListeners('popout-closed');
+    ipcRenderer.removeAllListeners('popout-video-ended');
   },
 });
