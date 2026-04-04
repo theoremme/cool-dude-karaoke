@@ -33,11 +33,11 @@ body {
   background:
     repeating-linear-gradient(
       0deg, transparent, transparent 59px,
-      rgba(0, 200, 255, 0.07) 59px, rgba(0, 200, 255, 0.07) 60px
+      rgba(0, 200, 255, 0.12) 59px, rgba(0, 200, 255, 0.12) 60px
     ),
     repeating-linear-gradient(
       90deg, transparent, transparent 59px,
-      rgba(0, 200, 255, 0.07) 59px, rgba(0, 200, 255, 0.07) 60px
+      rgba(0, 200, 255, 0.12) 59px, rgba(0, 200, 255, 0.12) 60px
     );
 }
 
@@ -53,11 +53,11 @@ body {
   background:
     repeating-linear-gradient(
       90deg, transparent, transparent 79px,
-      rgba(157, 0, 255, 0.15) 79px, rgba(157, 0, 255, 0.15) 80px
+      rgba(157, 0, 255, 0.22) 79px, rgba(157, 0, 255, 0.22) 80px
     ),
     repeating-linear-gradient(
       0deg, transparent, transparent 39px,
-      rgba(157, 0, 255, 0.12) 39px, rgba(157, 0, 255, 0.12) 40px
+      rgba(157, 0, 255, 0.18) 39px, rgba(157, 0, 255, 0.18) 40px
     );
   transform: perspective(400px) rotateX(45deg);
   transform-origin: center top;
@@ -144,7 +144,7 @@ body {
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(0, 200, 255, 0.15);
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.9);
 }
 
 .search-section {
@@ -355,6 +355,270 @@ body {
   cursor: not-allowed;
 }
 
+.vibe-button {
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid #9d00ff;
+  border-radius: 8px;
+  background: #000000;
+  color: #cc00ff;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+  text-shadow: 0 0 8px rgba(157, 0, 255, 0.6);
+  box-shadow: 0 0 10px rgba(157, 0, 255, 0.2), inset 0 0 10px rgba(157, 0, 255, 0.05);
+}
+
+.vibe-button:hover:not(:disabled) {
+  border-color: #cc00ff;
+  color: #ff00ff;
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.6);
+  box-shadow: 0 0 15px rgba(157, 0, 255, 0.4), inset 0 0 10px rgba(157, 0, 255, 0.1);
+  transform: translateY(-1px);
+}
+
+.vibe-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.vibe-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==================== VIBE SUGGESTIONS ==================== */
+.vibe-suggestions {
+  margin-bottom: 20px;
+}
+
+.vibe-suggestions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.vibe-header {
+  font-size: 18px;
+  font-weight: 700;
+  color: #cc00ff;
+  text-shadow: 0 0 10px rgba(157, 0, 255, 0.5);
+}
+
+.vibe-suggestions-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vibe-count {
+  font-size: 12px;
+  color: #666;
+}
+
+.btn-vibe-add {
+  border-color: #9d00ff;
+  color: #cc00ff;
+  text-shadow: 0 0 6px rgba(157, 0, 255, 0.4);
+}
+
+.btn-vibe-add:hover:not(:disabled) {
+  background: rgba(157, 0, 255, 0.1);
+  box-shadow: 0 0 8px rgba(157, 0, 255, 0.3);
+}
+
+.vibe-list {
+  border: 1px solid rgba(157, 0, 255, 0.15);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.vibe-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-bottom: 1px solid rgba(157, 0, 255, 0.08);
+  transition: background 0.15s;
+}
+
+.vibe-item:last-child {
+  border-bottom: none;
+}
+
+.vibe-item:hover {
+  background: rgba(157, 0, 255, 0.18);
+}
+
+.vibe-item-number {
+  width: 24px;
+  text-align: center;
+  font-size: 11px;
+  color: #555;
+  flex-shrink: 0;
+}
+
+.vibe-item-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.vibe-item-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vibe-item-artist {
+  font-size: 11px;
+  color: #888;
+}
+
+.vibe-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.vibe-item-error {
+  font-size: 10px;
+  color: #ff4466;
+}
+
+.vibe-item-result {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.vibe-item-thumb {
+  width: 48px;
+  height: 27px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.btn-vibe-added {
+  border-color: #CFF527 !important;
+  color: #CFF527 !important;
+  text-shadow: 0 0 12px rgba(207, 245, 39, 0.9) !important;
+  box-shadow: 0 0 10px rgba(207, 245, 39, 0.4) !important;
+  padding: 5px 12px;
+}
+
+.vibe-show-more {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  text-align: center;
+}
+
+/* Song Versions View */
+.vibe-versions {
+  margin-top: 8px;
+}
+
+.vibe-versions-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.vibe-versions-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #cc00ff;
+}
+
+.vibe-versions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vibe-version-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(10, 15, 30, 0.85);
+  border: 1px solid rgba(157, 0, 255, 0.1);
+  border-radius: 8px;
+  transition: background 0.15s;
+}
+
+.vibe-version-item:hover {
+  background: rgba(157, 0, 255, 0.08);
+}
+
+.vibe-version-thumb {
+  width: 80px;
+  height: 45px;
+  object-fit: cover;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.vibe-version-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vibe-version-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: #e0e0e0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vibe-version-meta {
+  font-size: 11px;
+  color: #777;
+}
+
+.btn-add-version {
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid #00c8ff;
+  border-radius: 6px;
+  background: transparent;
+  color: #00c8ff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 6px rgba(0, 200, 255, 0.4);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.btn-add-version:hover:not(:disabled) {
+  background: rgba(0, 200, 255, 0.1);
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+}
+
+.btn-add-version:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.btn-add-version-done {
+  border-color: #CFF527;
+  color: #CFF527;
+  text-shadow: 0 0 12px rgba(207, 245, 39, 0.9);
+  box-shadow: 0 0 10px rgba(207, 245, 39, 0.4);
+  cursor: default;
+}
+
 .loading {
   text-align: center;
   padding: 20px;
@@ -439,6 +703,14 @@ body {
   margin-bottom: 4px;
 }
 
+.result-vibe-tag {
+  font-size: 10px;
+  font-weight: 600;
+  color: #cc00ff;
+  text-shadow: 0 0 6px rgba(157, 0, 255, 0.4);
+  margin-bottom: 3px;
+}
+
 .result-channel {
   font-size: 11px;
   color: #777;
@@ -471,9 +743,10 @@ body {
 }
 
 .btn-add-disabled {
-  border-color: #333;
-  color: #555;
-  text-shadow: none;
+  border-color: #ffe600;
+  color: #ffe600;
+  text-shadow: 0 0 10px rgba(255, 230, 0, 0.8);
+  box-shadow: 0 0 8px rgba(255, 230, 0, 0.3);
   cursor: default;
 }
 
@@ -771,13 +1044,13 @@ body {
 }
 
 .sync-dot-active {
-  background: #00ff88;
-  box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+  background: #ffe600;
+  box-shadow: 0 0 6px rgba(255, 230, 0, 0.6);
 }
 
 .sync-label {
   font-size: 12px;
-  color: #00ff88;
+  color: #ffe600;
   flex: 1;
 }
 
@@ -916,8 +1189,8 @@ body {
 }
 
 .status-custom {
-  background: #00ff88;
-  box-shadow: 0 0 6px rgba(0, 255, 136, 0.6);
+  background: #ffe600;
+  box-shadow: 0 0 6px rgba(255, 230, 0, 0.6);
 }
 
 .settings-input-row {
@@ -943,8 +1216,41 @@ body {
   box-shadow: 0 0 8px rgba(157, 0, 255, 0.2);
 }
 
+.settings-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-family: monospace;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 6px;
+  background: rgba(10, 15, 30, 0.8);
+  color: #e0e0e0;
+  outline: none;
+  resize: vertical;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+.settings-textarea:focus {
+  border-color: #9d00ff;
+  box-shadow: 0 0 8px rgba(157, 0, 255, 0.2);
+}
+
 .settings-reset {
   margin-bottom: 10px;
+}
+
+.settings-section-divider {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(0, 200, 255, 0.1);
+}
+
+.settings-badge {
+  font-size: 11px;
+  color: #cc00ff;
+  font-weight: 600;
+  margin-left: 6px;
 }
 
 .settings-message {
@@ -955,9 +1261,9 @@ body {
 }
 
 .settings-message-success {
-  background: rgba(0, 255, 136, 0.1);
-  border: 1px solid rgba(0, 255, 136, 0.3);
-  color: #00ff88;
+  background: rgba(255, 230, 0, 0.1);
+  border: 1px solid rgba(255, 230, 0, 0.3);
+  color: #ffe600;
 }
 
 .settings-message-error {

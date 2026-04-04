@@ -28,6 +28,9 @@ const SearchResults = ({ results }) => {
                 <span className="result-duration">{video.duration}</span>
               </div>
               <div className="result-info">
+                {video.vibeSuggestion && (
+                  <p className="result-vibe-tag">✦ {video.vibeSuggestion}</p>
+                )}
                 <h3 className="result-title" title={video.title}>
                   {video.title}
                 </h3>

@@ -7,6 +7,16 @@ contextBridge.exposeInMainWorld('api', {
   apikeyClear: () => ipcRenderer.invoke('apikey-clear'),
   apikeyValidate: (apiKey) => ipcRenderer.invoke('apikey-validate', apiKey),
 
+  // Anthropic API key
+  anthropicKeySet: (apiKey) => ipcRenderer.invoke('anthropic-key-set', apiKey),
+  anthropicKeyClear: () => ipcRenderer.invoke('anthropic-key-clear'),
+
+  // Vibe playlist generation
+  vibeGenerate: (theme) => ipcRenderer.invoke('vibe-generate', theme),
+  vibePromptGet: () => ipcRenderer.invoke('vibe-prompt-get'),
+  vibePromptSet: (prompt) => ipcRenderer.invoke('vibe-prompt-set', prompt),
+  vibePromptClear: () => ipcRenderer.invoke('vibe-prompt-clear'),
+
   // YouTube search
   searchYouTube: (query) => ipcRenderer.invoke('youtube-search', query),
 

@@ -104,12 +104,56 @@ class ApiKeyManager {
    */
   getKeyStatus() {
     const userKey = this.getUserProvidedKey();
+    const anthropicKey = this.getAnthropicKey();
     return {
       isUsingCustomKey: !!userKey,
       maskedKey: userKey
         ? userKey.slice(0, 8) + '...' + userKey.slice(-4)
         : null,
+      hasAnthropicKey: !!anthropicKey,
+      maskedAnthropicKey: anthropicKey
+        ? anthropicKey.slice(0, 10) + '...' + anthropicKey.slice(-4)
+        : null,
+      hasCustomVibePrompt: !!this.getVibePrompt(),
     };
+  }
+
+  // --- Anthropic API Key ---
+
+  getAnthropicKey() {
+    const settings = readSettings();
+    return settings.anthropicApiKey || process.env.ANTHROPIC_API_KEY || null;
+  }
+
+  setAnthropicKey(apiKey) {
+    const settings = readSettings();
+    settings.anthropicApiKey = apiKey;
+    writeSettings(settings);
+  }
+
+  clearAnthropicKey() {
+    const settings = readSettings();
+    delete settings.anthropicApiKey;
+    writeSettings(settings);
+  }
+
+  // --- Custom Vibe Prompt ---
+
+  getVibePrompt() {
+    const settings = readSettings();
+    return settings.vibePrompt || null;
+  }
+
+  setVibePrompt(prompt) {
+    const settings = readSettings();
+    settings.vibePrompt = prompt;
+    writeSettings(settings);
+  }
+
+  clearVibePrompt() {
+    const settings = readSettings();
+    delete settings.vibePrompt;
+    writeSettings(settings);
   }
 }
 

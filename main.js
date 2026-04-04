@@ -8,6 +8,7 @@ require('dotenv').config({ path: path.join(__dirname, '.env') });
 const { youtubeService } = require('./src/services/YouTubeService');
 const { playlistSyncService } = require('./src/services/PlaylistSyncService');
 const { apiKeyManager } = require('./src/services/ApiKeyManager');
+const { vibeService } = require('./src/services/VibeService');
 
 let mainWindow;
 let popoutWindow;
@@ -283,6 +284,50 @@ ipcMain.handle('apikey-clear', async () => {
 
 ipcMain.handle('apikey-validate', async (event, apiKey) => {
   return apiKeyManager.validateKey(apiKey);
+});
+
+// --- Anthropic API Key ---
+
+ipcMain.handle('anthropic-key-set', async (event, apiKey) => {
+  apiKeyManager.setAnthropicKey(apiKey);
+  return { success: true };
+});
+
+ipcMain.handle('anthropic-key-clear', async () => {
+  apiKeyManager.clearAnthropicKey();
+  return { success: true };
+});
+
+// --- Custom Vibe Prompt ---
+
+ipcMain.handle('vibe-prompt-get', async () => {
+  return { prompt: apiKeyManager.getVibePrompt() };
+});
+
+ipcMain.handle('vibe-prompt-set', async (event, prompt) => {
+  apiKeyManager.setVibePrompt(prompt);
+  return { success: true };
+});
+
+ipcMain.handle('vibe-prompt-clear', async () => {
+  apiKeyManager.clearVibePrompt();
+  return { success: true };
+});
+
+// --- Vibe Playlist Generation ---
+
+ipcMain.handle('vibe-generate', async (event, theme) => {
+  try {
+    const anthropicKey = apiKeyManager.getAnthropicKey();
+    if (!anthropicKey) {
+      return { success: false, error: 'Anthropic API key not set. Add it in Settings.' };
+    }
+    const suggestions = await vibeService.generateSuggestions(theme, anthropicKey);
+    return { success: true, data: suggestions };
+  } catch (error) {
+    console.error('Vibe generation error:', error.message);
+    return { success: false, error: error.message };
+  }
 });
 
 // Connect to a YouTube playlist
