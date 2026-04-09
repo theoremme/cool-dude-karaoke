@@ -160,7 +160,7 @@ class ApiKeyManager {
 
   getBackendUrl() {
     const settings = readSettings();
-    return settings.backendUrl || 'http://localhost:3000';
+    return settings.backendUrl || 'https://cool-dude-karaoke-web-production.up.railway.app';
   }
 
   setBackendUrl(url) {
