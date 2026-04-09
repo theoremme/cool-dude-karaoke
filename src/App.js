@@ -11,12 +11,13 @@ import VideoPlayer from './components/VideoPlayer';
 import PlaylistQueue from './components/PlaylistQueue';
 import PlaylistSync from './components/PlaylistSync';
 import RoomPanel from './components/RoomPanel';
+import Closeout from './components/Closeout';
 import Settings from './components/Settings';
-import logo from './assets/cool-dude-karaoke-logo-v2.png';
+import logo from './assets/cool-dude-karaoke-logo-v2-nobg.png';
 import './styles/App.css';
 
 // The main host dashboard (existing UI)
-const Dashboard = ({ room, onLeaveRoom }) => {
+const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
   const { socket, connected, on, off, joinRoom, leaveRoom } = useSocket();
   const { user } = useAuth();
   const [results, setResults] = useState([]);
@@ -26,6 +27,7 @@ const Dashboard = ({ room, onLeaveRoom }) => {
   const [error, setError] = useState(null);
   const [vibeTheme, setVibeTheme] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [showBailModal, setShowBailModal] = useState(false);
   const [members, setMembers] = useState([]);
   const joinedRef = useRef(false);
 
@@ -58,9 +60,12 @@ const Dashboard = ({ room, onLeaveRoom }) => {
       setMembers((prev) => prev.filter((m) => m.id !== id));
     };
 
-    const handleRoomClosed = ({ message }) => {
-      alert(message || 'Room has been closed');
-      onLeaveRoom();
+    const handleRoomClosed = ({ room: closedRoom, playlist: finalPlaylist }) => {
+      if (onCloseRoom) {
+        onCloseRoom(closedRoom || room, finalPlaylist || []);
+      } else {
+        onLeaveRoom();
+      }
     };
 
     const handleInactivityWarning = ({ remainingSeconds }) => {
@@ -99,9 +104,20 @@ const Dashboard = ({ room, onLeaveRoom }) => {
     };
   }, [socket, room, on, off, onLeaveRoom]);
 
-  const handleLeave = () => {
+  const handleLobby = () => {
     if (room) leaveRoom(room.id);
     onLeaveRoom();
+  };
+
+  const handleBail = () => {
+    setShowBailModal(true);
+  };
+
+  const confirmBail = () => {
+    setShowBailModal(false);
+    if (room && socket) {
+      socket.emit('close-room', { roomId: room.id });
+    }
   };
 
   const handleSearch = async (query) => {
@@ -182,22 +198,27 @@ const Dashboard = ({ room, onLeaveRoom }) => {
     <PlaylistProvider socket={socket} roomId={room?.id}>
       <div className="app">
         <header className="app-header">
-          <img src={logo} alt="Cool Dude Karaoke" className="app-logo" />
-          {room && (
-            <div className="header-room-info">
-              <span className="header-room-name">{room.name}</span>
-              <span className="header-room-code">{room.inviteCode}</span>
-              {!connected && <span className="header-disconnected">Reconnecting...</span>}
-            </div>
-          )}
+          <div className="logo-wrap">
+            <img src={logo} alt="Cool Dude Karaoke" className="app-logo" />
+            <span className="logo-subtitle">AMPED</span>
+          </div>
+          <div className="header-left">
+            <button className="btn-header-link" onClick={handleLobby}>Lobby</button>
+            {room && (
+              <>
+                <span className="header-room-name">{room.name}</span>
+                <span className="header-room-code">{room.inviteCode}</span>
+                {!connected && <span className="header-disconnected">Reconnecting...</span>}
+              </>
+            )}
+          </div>
           <div className="header-actions">
             {room && (
               <button
-                className="btn-neon btn-small btn-danger"
-                onClick={handleLeave}
-                title="Leave room"
+                className="btn-header-bail"
+                onClick={handleBail}
               >
-                Leave Room
+                Bail
               </button>
             )}
             <button
@@ -247,6 +268,19 @@ const Dashboard = ({ room, onLeaveRoom }) => {
         </div>
 
         <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+
+        {showBailModal && (
+          <div className="bail-overlay" onClick={() => setShowBailModal(false)}>
+            <div className="bail-modal" onClick={(e) => e.stopPropagation()}>
+              <h2>Callin' it quits?</h2>
+              <p>This will end the room for everyone. Guests will be kicked out and the session will close.</p>
+              <div className="bail-actions">
+                <button className="btn-neon" onClick={confirmBail}>End Session</button>
+                <button className="btn-neon btn-bail-keep" onClick={() => setShowBailModal(false)}>Keep Going</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </PlaylistProvider>
   );
@@ -256,6 +290,7 @@ const Dashboard = ({ room, onLeaveRoom }) => {
 const AppRouter = () => {
   const { user, loading } = useAuth();
   const [currentRoom, setCurrentRoom] = useState(null);
+  const [closeoutData, setCloseoutData] = useState(null); // { room, playlist }
   const [backendUrl, setBackendUrl] = useState(null);
   const [token, setToken] = useState(null);
 
@@ -283,10 +318,23 @@ const AppRouter = () => {
     await window.api.sessionClear();
   }, []);
 
+  const handleCloseRoom = useCallback(async (room, playlist) => {
+    setCloseoutData({ room, playlist });
+    setCurrentRoom(null);
+    await window.api.sessionClear();
+  }, []);
+
+  const handleBackToLobby = useCallback(() => {
+    setCloseoutData(null);
+  }, []);
+
   if (loading) {
     return (
       <div className="auth-page">
-        <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+        <div className="logo-wrap">
+          <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+          <span className="logo-subtitle">AMPED</span>
+        </div>
         <div className="loading">Loading...</div>
       </div>
     );
@@ -296,13 +344,17 @@ const AppRouter = () => {
     return <AuthPage />;
   }
 
+  if (closeoutData) {
+    return <Closeout room={closeoutData.room} playlist={closeoutData.playlist} onBackToLobby={handleBackToLobby} />;
+  }
+
   if (!currentRoom) {
     return <RoomLobby onJoinRoom={handleJoinRoom} />;
   }
 
   return (
     <SocketProvider backendUrl={backendUrl} token={token}>
-      <Dashboard room={currentRoom} onLeaveRoom={handleLeaveRoom} />
+      <Dashboard room={currentRoom} onLeaveRoom={handleLeaveRoom} onCloseRoom={handleCloseRoom} />
     </SocketProvider>
   );
 };

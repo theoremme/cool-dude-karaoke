@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import logo from '../assets/cool-dude-karaoke-logo-v2.png';
+import logo from '../assets/cool-dude-karaoke-logo-v2-nobg.png';
 
 const AuthPage = () => {
   const { login, register } = useAuth();
@@ -36,7 +36,10 @@ const AuthPage = () => {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+        <div className="logo-wrap">
+          <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+          <span className="logo-subtitle">AMPED</span>
+        </div>
         <h2>{isLogin ? 'Welcome Back, Dude' : 'Join the Party'}</h2>
 
         {error && <div className="auth-error">{error}</div>}

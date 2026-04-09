@@ -6,8 +6,9 @@
  */
 
 const YOUTUBE_CONFIG = {
-  // Default embedded API key (loaded from .env in main process)
-  DEFAULT_API_KEY: process.env.YOUTUBE_API_KEY,
+  // Fallback API key from .env (local dev only — not shipped in packaged app)
+  // Users must set their own key via Settings in production builds
+  DEFAULT_API_KEY: process.env.YOUTUBE_API_KEY || null,
 
   // API base URL
   API_BASE: 'https://www.googleapis.com/youtube/v3',

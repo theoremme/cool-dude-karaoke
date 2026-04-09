@@ -15,6 +15,7 @@
     "axios": "^1.7.9",
     "dotenv": "^16.4.7",
     "electron-store": "^11.0.2",
+    "jspdf": "^4.2.1",
     "qrcode.react": "^4.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -47,11 +48,7 @@
       "main.js",
       "preload.js",
       "webview-preload.js",
-      ".env",
       "node_modules/**/*"
-    ],
-    "asarUnpack": [
-      ".env"
     ],
     "win": {
       "target": [

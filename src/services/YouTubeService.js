@@ -56,7 +56,7 @@ class YouTubeService {
 
     const detailsResponse = await axios.get(`${this.baseUrl}/videos`, {
       params: {
-        part: 'contentDetails,snippet',
+        part: 'contentDetails,snippet,status',
         id: videoIds,
         key: apiKey,
       },
@@ -75,6 +75,7 @@ class YouTubeService {
           video.snippet.thumbnails.default?.url,
         durationSeconds,
         duration: this.formatDuration(durationSeconds),
+        embeddable: video.status?.embeddable !== false,
       };
     });
   }
@@ -84,7 +85,7 @@ class YouTubeService {
 
     const response = await axios.get(`${this.baseUrl}/videos`, {
       params: {
-        part: 'contentDetails,snippet',
+        part: 'contentDetails,snippet,status',
         id: Array.isArray(videoIds) ? videoIds.join(',') : videoIds,
         key: apiKey,
       },
@@ -103,6 +104,7 @@ class YouTubeService {
           video.snippet.thumbnails.default?.url,
         durationSeconds,
         duration: this.formatDuration(durationSeconds),
+        embeddable: video.status?.embeddable !== false,
       };
     });
   }
@@ -128,13 +130,17 @@ class YouTubeService {
         .filter((item) => {
           // Skip private, deleted, and unavailable videos
           const title = item.snippet.title || '';
-          return (
-            title !== 'Private video' &&
-            title !== 'Deleted video' &&
-            !title.startsWith('[Private') &&
-            !title.startsWith('[Deleted') &&
-            item.snippet.thumbnails
-          );
+          if (
+            title === 'Private video' ||
+            title === 'Deleted video' ||
+            title === 'Unavailable video' ||
+            title.startsWith('[Private') ||
+            title.startsWith('[Deleted') ||
+            title.startsWith('[Unavailable') ||
+            !item.snippet.thumbnails ||
+            !item.contentDetails?.videoId
+          ) return false;
+          return true;
         })
         .map((item) => ({
           videoId: item.contentDetails.videoId,

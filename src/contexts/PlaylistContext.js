@@ -143,15 +143,34 @@ export function PlaylistProvider({ children, socket, roomId }) {
       dispatch({ type: 'SET_PLAYLIST', payload: items });
     };
 
-    const handleRoomUpdated = ({ playlist }) => {
+    const handleRoomUpdated = ({ playlist, playback }) => {
       if (playlist) {
         const items = playlist.map(normalizeServerItem);
         dispatch({ type: 'SET_PLAYLIST', payload: items });
+      }
+      // Restore playback state (e.g. after reconnection)
+      if (playback && typeof playback.currentIndex === 'number') {
+        dispatch({ type: 'SET_PLAYBACK', payload: {
+          currentIndex: playback.currentIndex,
+          isPlaying: playback.isPlaying ?? false,
+        }});
       }
     };
 
     const handlePlaybackSync = ({ currentIndex, isPlaying }) => {
       dispatch({ type: 'SET_PLAYBACK', payload: { currentIndex, isPlaying } });
+    };
+
+    // When a new user joins, re-broadcast current playback state so they sync
+    const handleUserJoined = () => {
+      if (roomIdRef.current) {
+        socket.emit('playback-sync', {
+          roomId: roomIdRef.current,
+          currentIndex: state.currentIndex,
+          isPlaying: state.isPlaying,
+          mode: 'amped',
+        });
+      }
     };
 
     // Handle playback commands from web remotes (play/pause/skip/play-index)
@@ -181,12 +200,14 @@ export function PlaylistProvider({ children, socket, roomId }) {
     socket.on('room-updated', handleRoomUpdated);
     socket.on('playback-sync', handlePlaybackSync);
     socket.on('playback-command', handlePlaybackCommand);
+    socket.on('user-joined', handleUserJoined);
 
     return () => {
       socket.off('playlist-updated', handlePlaylistUpdated);
       socket.off('room-updated', handleRoomUpdated);
       socket.off('playback-sync', handlePlaybackSync);
       socket.off('playback-command', handlePlaybackCommand);
+      socket.off('user-joined', handleUserJoined);
     };
   }, [socket]);
 

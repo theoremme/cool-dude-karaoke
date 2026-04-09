@@ -316,12 +316,8 @@ const VideoPlayer = () => {
       {!hasVideo && (
         <div className="player-placeholder">
           <div className="placeholder-content">
-            <div className="placeholder-icon">&#9654;</div>
-            <p>
-              {items.length > 0
-                ? 'Press play or select a song to start'
-                : 'Search and add songs to get started'}
-            </p>
+            <div className="placeholder-icon">♪</div>
+            <p>Add songs and hit play to start the party!</p>
           </div>
         </div>
       )}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import * as authService from '../services/authService';
-import logo from '../assets/cool-dude-karaoke-logo-v2.png';
+import logo from '../assets/cool-dude-karaoke-logo-v2-nobg.png';
 
 const RoomLobby = ({ onJoinRoom }) => {
   const { user, logout } = useAuth();
@@ -17,6 +17,15 @@ const RoomLobby = ({ onJoinRoom }) => {
       .then((data) => setActiveRooms(data.rooms || []))
       .catch(() => {})
       .finally(() => setRoomsLoading(false));
+
+    // Auto-refresh room list every 10 seconds
+    const interval = setInterval(() => {
+      authService.getMyRooms()
+        .then((data) => setActiveRooms(data.rooms || []))
+        .catch(() => {});
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const handleCreate = async (e) => {
@@ -51,7 +60,10 @@ const RoomLobby = ({ onJoinRoom }) => {
   return (
     <div className="room-lobby">
       <div className="lobby-card">
-        <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+        <div className="logo-wrap">
+          <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+          <span className="logo-subtitle">AMPED</span>
+        </div>
         <div style={{ textAlign: 'center', marginBottom: 16 }}>
           <span style={{ color: '#888', fontSize: 13 }}>
             Welcome, {user?.name || user?.email}

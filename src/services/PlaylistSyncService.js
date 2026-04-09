@@ -52,6 +52,8 @@ class PlaylistSyncService {
 
     // Get initial items and enrich with duration info
     const items = await youtubeService.getPlaylistItems(playlistId);
+    // Sort by YouTube playlist position to preserve order
+    items.sort((a, b) => (a.position ?? 0) - (b.position ?? 0));
     this.lastKnownVideoIds = new Set(items.map((item) => item.videoId));
     this.lastSyncTime = Date.now();
 
