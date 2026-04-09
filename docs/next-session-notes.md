@@ -1,39 +1,30 @@
-# Next Session Notes
+## Next Session Notes (updated 2026-04-09)
 
-## Uncommitted Work
-The vibe playlist feature and styling updates are uncommitted. First action should be:
-```
-git add . && git commit && git push
-```
+### What was completed
+- Phase 1 convergence is essentially complete
+- Auth, rooms, socket sync, playlist sync, Amped/Unplugged mode switching all working
+- QR invite panel, posse display, closeout page with PDF (Phase 3 items done early)
+- Non-embeddable song dimming + auto-skip in Unplugged mode
+- Amped disconnect countdown with fallback to Unplugged
+- GitHub Actions CI builds Windows + Mac, creates GitHub Release on version tags
+- v1.5 release build triggered
+- Amped download banner added to Unplugged host pages
+- .env secrets removed from packaged builds
 
-## Incomplete Tasks
-1. **Auto-detect and skip Content ID restricted videos** (Task #17)
-   - Poll for blur filters on video element, auto-advance when detected
-   - Applies to both docked webview and popout BrowserWindow
+### Known issues to investigate
+- YouTube playlist sync ordering — sort fix added but needs verification with a real playlist
+- Reconnection from Unplugged back to Amped can require a play/pause toggle to start video
+- YouTube OAuth publishing in Electron uses "Open in Browser" workaround — full native OAuth is Phase 3
 
-## Known Issues
-- **Player CSS flash on Mac** — YouTube page briefly shows default layout before cleanup CSS kicks in. The `waitForVideoPlaying` approach helps but isn't perfect on slower machines.
-- **Popout slow on cold cache** — First popout takes 5-10s on Mac. Subsequent ones are faster (YouTube is cached).
-- **`webview-preload.js` is unused** — Can be deleted. Was replaced by `insertCSS` + `executeJavaScript` approach.
-- **Code signing** — Windows exe triggers SmartScreen warning, Mac dmg needs right-click > Open. Proper fix requires certificates ($200-400/yr Windows, $99/yr Apple).
+### Decisions made
+- Phase 2 (yt-dlp) is deferred — risk to YouTube API quota review. Webview player stays for now.
+- Default backend URL is Railway production. Users can override to localhost via Settings for dev.
+- Mac builds are unsigned (Apple Developer $99/year needed for code signing)
 
-## Pending Decisions
-- **Web app conversion** — Plan saved in `docs/WEBAPP-CONVERSION-PLAN.md`. User wants to incorporate the vibe feature first. Key trade-off: YouTube IFrame API can't bypass embedding restrictions like the webview approach.
-- **Vibe model selection** — Currently hardcoded to `claude-sonnet-4-20250514`. Could make configurable or upgrade to a newer model.
-
-## Suggested Priorities for Next Session
-1. Commit and push vibe feature
-2. Test vibe on Mac build (trigger CI)
-3. Auto-skip Content ID restricted videos
-4. Clean up `webview-preload.js` (delete unused file)
-5. Consider keyboard shortcuts (Space = play/pause, N = next)
-6. Web app conversion if ready
-
-## Testing Needed
-- Vibe generation with various themes (genre accuracy)
-- Show Versions → Back to Results flow
-- Show More (unique results, no duplicates)
-- Add All progress tracking
-- Custom vibe prompt save/load/reset
-- Anthropic key save/clear in Settings
-- Mac build with vibe feature
+### Suggested priorities for next session
+1. Verify v1.5 GitHub Release built successfully and test the downloaded .exe/.dmg
+2. Test full end-to-end flow on production Railway (not localhost)
+3. Smooth out Amped reconnection (video auto-start after Unplugged → Amped transition)
+4. Phase 3 remaining: inactivity countdown modal, session persistence improvements
+5. Phase 4 polish: consolidate CSS, remove dead webview-preload code, keyboard shortcuts
+6. Consider adding a "Backend URL" field to the Electron Settings panel for easier dev/prod switching
