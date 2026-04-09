@@ -155,6 +155,63 @@ class ApiKeyManager {
     delete settings.vibePrompt;
     writeSettings(settings);
   }
+
+  // --- Backend URL ---
+
+  getBackendUrl() {
+    const settings = readSettings();
+    return settings.backendUrl || 'http://localhost:3000';
+  }
+
+  setBackendUrl(url) {
+    const settings = readSettings();
+    settings.backendUrl = url;
+    writeSettings(settings);
+  }
+
+  clearBackendUrl() {
+    const settings = readSettings();
+    delete settings.backendUrl;
+    writeSettings(settings);
+  }
+
+  // --- Auth Token ---
+
+  getAuthToken() {
+    const settings = readSettings();
+    return settings.authToken || null;
+  }
+
+  setAuthToken(token) {
+    const settings = readSettings();
+    settings.authToken = token;
+    writeSettings(settings);
+  }
+
+  clearAuthToken() {
+    const settings = readSettings();
+    delete settings.authToken;
+    writeSettings(settings);
+  }
+
+  // --- Session data (roomId, memberId for crash recovery) ---
+
+  getSession() {
+    const settings = readSettings();
+    return settings.session || null;
+  }
+
+  setSession(session) {
+    const settings = readSettings();
+    settings.session = session;
+    writeSettings(settings);
+  }
+
+  clearSession() {
+    const settings = readSettings();
+    delete settings.session;
+    writeSettings(settings);
+  }
 }
 
 const apiKeyManager = new ApiKeyManager();

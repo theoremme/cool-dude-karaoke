@@ -101,10 +101,10 @@ async function createWindow() {
   const port = await startLocalServer();
 
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
-    minWidth: 1000,
-    minHeight: 700,
+    width: 1600,
+    height: 1000,
+    minWidth: 1100,
+    minHeight: 750,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,
@@ -119,6 +119,12 @@ async function createWindow() {
   });
 
   mainWindow.loadURL(`http://127.0.0.1:${port}`);
+
+  // Fill screen height but keep width comfortable
+  const { screen } = require('electron');
+  const { height } = screen.getPrimaryDisplay().workAreaSize;
+  mainWindow.setBounds({ width: 1600, height, y: 0 });
+  mainWindow.center();
 
   // Wire up sync service push events to renderer
   playlistSyncService.onNewItems = (items) => {
@@ -311,6 +317,49 @@ ipcMain.handle('vibe-prompt-set', async (event, prompt) => {
 
 ipcMain.handle('vibe-prompt-clear', async () => {
   apiKeyManager.clearVibePrompt();
+  return { success: true };
+});
+
+// --- Backend URL ---
+
+ipcMain.handle('backend-url-get', async () => {
+  return apiKeyManager.getBackendUrl();
+});
+
+ipcMain.handle('backend-url-set', async (event, url) => {
+  apiKeyManager.setBackendUrl(url);
+  return { success: true };
+});
+
+// --- Auth Token ---
+
+ipcMain.handle('auth-token-get', async () => {
+  return apiKeyManager.getAuthToken();
+});
+
+ipcMain.handle('auth-token-set', async (event, token) => {
+  apiKeyManager.setAuthToken(token);
+  return { success: true };
+});
+
+ipcMain.handle('auth-token-clear', async () => {
+  apiKeyManager.clearAuthToken();
+  return { success: true };
+});
+
+// --- Session persistence ---
+
+ipcMain.handle('session-get', async () => {
+  return apiKeyManager.getSession();
+});
+
+ipcMain.handle('session-set', async (event, session) => {
+  apiKeyManager.setSession(session);
+  return { success: true };
+});
+
+ipcMain.handle('session-clear', async () => {
+  apiKeyManager.clearSession();
   return { success: true };
 });
 

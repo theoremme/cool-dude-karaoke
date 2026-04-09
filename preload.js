@@ -52,6 +52,20 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.removeAllListeners('sync-error');
   },
 
+  // Backend URL
+  backendUrlGet: () => ipcRenderer.invoke('backend-url-get'),
+  backendUrlSet: (url) => ipcRenderer.invoke('backend-url-set', url),
+
+  // Auth token (persisted in userData)
+  authTokenGet: () => ipcRenderer.invoke('auth-token-get'),
+  authTokenSet: (token) => ipcRenderer.invoke('auth-token-set', token),
+  authTokenClear: () => ipcRenderer.invoke('auth-token-clear'),
+
+  // Session persistence (roomId, memberId for crash recovery)
+  sessionGet: () => ipcRenderer.invoke('session-get'),
+  sessionSet: (session) => ipcRenderer.invoke('session-set', session),
+  sessionClear: () => ipcRenderer.invoke('session-clear'),
+
   // Popout player
   popoutOpen: (videoId, currentTime, title) =>
     ipcRenderer.invoke('popout-open', { videoId, currentTime, title }),

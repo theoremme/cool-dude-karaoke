@@ -1,16 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
+import { AuthProvider, useAuth } from './hooks/useAuth';
+import { SocketProvider, useSocket } from './hooks/useSocket';
 import { PlaylistProvider } from './contexts/PlaylistContext';
+import AuthPage from './components/AuthPage';
+import RoomLobby from './components/RoomLobby';
 import SearchBar from './components/SearchBar';
 import SearchResults from './components/SearchResults';
 import VibeSuggestions from './components/VibeSuggestions';
 import VideoPlayer from './components/VideoPlayer';
 import PlaylistQueue from './components/PlaylistQueue';
 import PlaylistSync from './components/PlaylistSync';
+import RoomPanel from './components/RoomPanel';
 import Settings from './components/Settings';
 import logo from './assets/cool-dude-karaoke-logo-v2.png';
 import './styles/App.css';
 
-const AppContent = () => {
+// The main host dashboard (existing UI)
+const Dashboard = ({ room, onLeaveRoom }) => {
+  const { socket, connected, on, off, joinRoom, leaveRoom } = useSocket();
+  const { user } = useAuth();
   const [results, setResults] = useState([]);
   const [vibeSuggestions, setVibeSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -18,6 +26,83 @@ const AppContent = () => {
   const [error, setError] = useState(null);
   const [vibeTheme, setVibeTheme] = useState(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [members, setMembers] = useState([]);
+  const joinedRef = useRef(false);
+
+  // Join room via socket on mount
+  useEffect(() => {
+    if (!connected || !room || joinedRef.current) return;
+    joinedRef.current = true;
+    joinRoom(room, user?.id);
+  }, [connected, room, user, joinRoom]);
+
+  // Listen for room-level socket events
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleRoomUpdated = ({ room: updatedRoom, playlist, members: roomMembers }) => {
+      setMembers(roomMembers || []);
+      // Save session for crash recovery
+      window.api.sessionSet({
+        roomId: updatedRoom.id,
+        inviteCode: updatedRoom.inviteCode || updatedRoom.invite_code,
+        roomName: updatedRoom.name,
+      });
+    };
+
+    const handleUserJoined = (member) => {
+      setMembers((prev) => [...prev, member]);
+    };
+
+    const handleUserLeft = ({ id }) => {
+      setMembers((prev) => prev.filter((m) => m.id !== id));
+    };
+
+    const handleRoomClosed = ({ message }) => {
+      alert(message || 'Room has been closed');
+      onLeaveRoom();
+    };
+
+    const handleInactivityWarning = ({ remainingSeconds }) => {
+      // Respond immediately — we're the active host
+      socket.emit('activity-ping', { roomId: room.id });
+    };
+
+    const handleModeChanged = ({ mode, triggeredBy }) => {
+      console.log(`[Mode] Room switched to ${mode} by ${triggeredBy}`);
+    };
+
+    const handleRejoined = async ({ memberId }) => {
+      const saved = await window.api.sessionGet();
+      if (saved) {
+        await window.api.sessionSet({ ...saved, memberId });
+      }
+    };
+
+    on('room-updated', handleRoomUpdated);
+    on('user-joined', handleUserJoined);
+    on('user-left', handleUserLeft);
+    on('room-closed', handleRoomClosed);
+    on('inactivity-warning', handleInactivityWarning);
+    on('inactivity-cleared', () => {});
+    on('mode-changed', handleModeChanged);
+    on('rejoined', handleRejoined);
+
+    return () => {
+      off('room-updated', handleRoomUpdated);
+      off('user-joined', handleUserJoined);
+      off('user-left', handleUserLeft);
+      off('room-closed', handleRoomClosed);
+      off('inactivity-warning', handleInactivityWarning);
+      off('mode-changed', handleModeChanged);
+      off('rejoined', handleRejoined);
+    };
+  }, [socket, room, on, off, onLeaveRoom]);
+
+  const handleLeave = () => {
+    if (room) leaveRoom(room.id);
+    onLeaveRoom();
+  };
 
   const handleSearch = async (query) => {
     setLoading(true);
@@ -69,7 +154,6 @@ const AppContent = () => {
     setError(null);
 
     try {
-      // Build exclusion list from existing suggestions
       const existingTitles = vibeSuggestions.map(
         (s) => `${s.title} by ${s.artist}`
       );
@@ -77,7 +161,6 @@ const AppContent = () => {
 
       const response = await window.api.vibeGenerate(moreTheme);
       if (response.success) {
-        // Deduplicate by title+artist
         const existing = new Set(
           vibeSuggestions.map((s) => `${s.title}|||${s.artist}`.toLowerCase())
         );
@@ -96,62 +179,138 @@ const AppContent = () => {
   };
 
   return (
-    <div className="app">
-      <header className="app-header">
-        <img src={logo} alt="Cool Dude Karaoke" className="app-logo" />
-        <button
-          className="btn-settings"
-          onClick={() => setSettingsOpen(true)}
-          title="Settings"
-        >
-          &#9881;
-        </button>
-      </header>
+    <PlaylistProvider socket={socket} roomId={room?.id}>
+      <div className="app">
+        <header className="app-header">
+          <img src={logo} alt="Cool Dude Karaoke" className="app-logo" />
+          {room && (
+            <div className="header-room-info">
+              <span className="header-room-name">{room.name}</span>
+              <span className="header-room-code">{room.inviteCode}</span>
+              {!connected && <span className="header-disconnected">Reconnecting...</span>}
+            </div>
+          )}
+          <div className="header-actions">
+            {room && (
+              <button
+                className="btn-neon btn-small btn-danger"
+                onClick={handleLeave}
+                title="Leave room"
+              >
+                Leave Room
+              </button>
+            )}
+            <button
+              className="btn-settings"
+              onClick={() => setSettingsOpen(true)}
+              title="Settings"
+            >
+              &#9881;
+            </button>
+          </div>
+        </header>
 
-      <div className="app-body">
-        <div className="panel-left">
-          <VideoPlayer />
-          <div className="search-section">
-            <SearchBar
-              onSearch={handleSearch}
-              onVibe={handleVibe}
-              loading={loading}
-              vibeLoading={vibeLoading}
-            />
-            {error && <div className="error-message">{error}</div>}
-            {loading && <div className="loading">Searching...</div>}
-            {vibeLoading && (
-              <div className="loading">
-                ✦ Generating "{vibeTheme}" playlist...
-              </div>
-            )}
-            {vibeSuggestions.length > 0 && (
-              <VibeSuggestions
-                theme={vibeTheme}
-                suggestions={vibeSuggestions}
-                onRequestMore={handleRequestMore}
-                loadingMore={loadingMore}
+        <div className="app-body">
+          <div className="panel-left">
+            <VideoPlayer />
+            <div className="search-section">
+              <SearchBar
+                onSearch={handleSearch}
+                onVibe={handleVibe}
+                loading={loading}
+                vibeLoading={vibeLoading}
               />
-            )}
-            <SearchResults results={results} />
+              {error && <div className="error-message">{error}</div>}
+              {loading && <div className="loading">Searching...</div>}
+              {vibeLoading && (
+                <div className="loading">
+                  ✦ Generating "{vibeTheme}" playlist...
+                </div>
+              )}
+              {vibeSuggestions.length > 0 && (
+                <VibeSuggestions
+                  theme={vibeTheme}
+                  suggestions={vibeSuggestions}
+                  onRequestMore={handleRequestMore}
+                  loadingMore={loadingMore}
+                />
+              )}
+              <SearchResults results={results} />
+            </div>
+          </div>
+
+          <div className="panel-right">
+            <RoomPanel room={room} members={members} connected={connected} />
+            <PlaylistQueue />
+            <PlaylistSync />
           </div>
         </div>
 
-        <div className="panel-right">
-          <PlaylistQueue />
-          <PlaylistSync />
-        </div>
+        <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
       </div>
+    </PlaylistProvider>
+  );
+};
 
-      <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
-    </div>
+// View router: login -> lobby -> dashboard
+const AppRouter = () => {
+  const { user, loading } = useAuth();
+  const [currentRoom, setCurrentRoom] = useState(null);
+  const [backendUrl, setBackendUrl] = useState(null);
+  const [token, setToken] = useState(null);
+
+  // Load backend URL and token for socket
+  useEffect(() => {
+    (async () => {
+      const url = await window.api.backendUrlGet();
+      setBackendUrl(url);
+      const t = await window.api.authTokenGet();
+      setToken(t);
+    })();
+  }, [user]); // Re-fetch when user changes (login/logout)
+
+  const handleJoinRoom = useCallback(async (room) => {
+    setCurrentRoom(room);
+    await window.api.sessionSet({
+      roomId: room.id,
+      inviteCode: room.inviteCode,
+      roomName: room.name,
+    });
+  }, []);
+
+  const handleLeaveRoom = useCallback(async () => {
+    setCurrentRoom(null);
+    await window.api.sessionClear();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="auth-page">
+        <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
+        <div className="loading">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return <AuthPage />;
+  }
+
+  if (!currentRoom) {
+    return <RoomLobby onJoinRoom={handleJoinRoom} />;
+  }
+
+  return (
+    <SocketProvider backendUrl={backendUrl} token={token}>
+      <Dashboard room={currentRoom} onLeaveRoom={handleLeaveRoom} />
+    </SocketProvider>
   );
 };
 
 const App = () => (
-  <PlaylistProvider>
-    <AppContent />
-  </PlaylistProvider>
+  <AuthProvider>
+    <AppRouter />
+  </AuthProvider>
 );
 
 export default App;

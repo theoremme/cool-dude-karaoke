@@ -20,8 +20,8 @@ body {
   overflow: hidden;
 }
 
-/* Tron perspective grid background */
-.app::before {
+/* Tron perspective grid background (on body so it shows on all views) */
+body::before {
   content: '';
   position: fixed;
   top: 0;
@@ -41,7 +41,7 @@ body {
     );
 }
 
-.app::after {
+body::after {
   content: '';
   position: fixed;
   bottom: 0;
@@ -94,9 +94,6 @@ body {
 }
 
 .btn-settings {
-  position: absolute;
-  top: 14px;
-  right: 14px;
   background: none;
   border: 1px solid rgba(0, 200, 255, 0.3);
   color: #00c8ff;
@@ -511,6 +508,7 @@ body {
   color: #CFF527 !important;
   text-shadow: 0 0 12px rgba(207, 245, 39, 0.9) !important;
   box-shadow: 0 0 10px rgba(207, 245, 39, 0.4) !important;
+  opacity: 1 !important;
   padding: 5px 12px;
 }
 
@@ -616,6 +614,7 @@ body {
   color: #CFF527;
   text-shadow: 0 0 12px rgba(207, 245, 39, 0.9);
   box-shadow: 0 0 10px rgba(207, 245, 39, 0.4);
+  opacity: 1 !important;
   cursor: default;
 }
 
@@ -743,10 +742,11 @@ body {
 }
 
 .btn-add-disabled {
-  border-color: #ffe600;
-  color: #ffe600;
-  text-shadow: 0 0 10px rgba(255, 230, 0, 0.8);
-  box-shadow: 0 0 8px rgba(255, 230, 0, 0.3);
+  border-color: #CFF527;
+  color: #CFF527;
+  text-shadow: 0 0 10px rgba(207, 245, 39, 0.8);
+  box-shadow: 0 0 8px rgba(207, 245, 39, 0.3);
+  opacity: 1 !important;
   cursor: default;
 }
 
@@ -1288,4 +1288,504 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(0, 200, 255, 0.3);
+}
+
+/* ==================== LOADING SCREEN ==================== */
+.loading-screen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* ==================== SHARED CARD STYLES (Auth + Lobby) ==================== */
+.auth-page,
+.room-lobby {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.auth-card,
+.lobby-card {
+  background: rgba(10, 15, 30, 0.9);
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 16px;
+  padding: 40px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 0 30px rgba(0, 200, 255, 0.1), 0 0 60px rgba(157, 0, 255, 0.05);
+}
+
+.auth-card h2,
+.lobby-card h2 {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: #ff40ff;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-logo {
+  display: block;
+  margin: 0 auto 20px;
+  height: 200px;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+/* ==================== AUTH PAGE ==================== */
+.auth-title {
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.08em;
+  color: #ff40ff;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.auth-error,
+.error-message {
+  background: rgba(255, 68, 102, 0.1);
+  border: 1px solid rgba(255, 68, 102, 0.3);
+  color: #ff4466;
+  padding: 10px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  text-align: left;
+  margin-bottom: 12px;
+}
+
+.auth-submit {
+  margin-top: 4px;
+}
+
+.auth-toggle {
+  background: none;
+  border: none;
+  color: rgba(0, 200, 255, 0.6);
+  cursor: pointer;
+  font-size: 13px;
+  margin-top: 20px;
+  transition: color 0.2s;
+  display: block;
+  width: 100%;
+  text-align: center;
+}
+
+.auth-toggle:hover {
+  color: #00c8ff;
+}
+
+/* ==================== FORM INPUTS (shared) ==================== */
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-group input,
+.auth-input {
+  width: 100%;
+  padding: 12px 14px;
+  font-size: 14px;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  border-radius: 8px;
+  background: rgba(10, 15, 30, 0.8);
+  color: #e0e0e0;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.auth-input:focus {
+  border-color: #cc00ff;
+  box-shadow: 0 0 10px rgba(204, 0, 255, 0.2);
+}
+
+.form-group input::placeholder,
+.auth-input::placeholder {
+  color: rgba(224, 224, 224, 0.35);
+}
+
+/* ==================== PRIMARY BUTTON (shared) ==================== */
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border: 2px solid #00c8ff;
+  border-radius: 8px;
+  background: transparent;
+  color: #00c8ff;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-shadow: 0 0 8px rgba(0, 200, 255, 0.6);
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: rgba(0, 200, 255, 0.1);
+  box-shadow: 0 0 20px rgba(0, 200, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.btn-primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ==================== ROOM LOBBY ==================== */
+.active-rooms {
+  border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+}
+
+.active-rooms h2 {
+  font-size: 16px !important;
+  margin-bottom: 12px !important;
+}
+
+.active-rooms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.active-room-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(0, 200, 255, 0.04);
+  border: 1px solid rgba(0, 200, 255, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.active-room-item:hover {
+  background: rgba(0, 200, 255, 0.08);
+  border-color: rgba(0, 200, 255, 0.25);
+}
+
+.active-room-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.active-room-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.active-room-meta {
+  font-size: 11px;
+  color: #666;
+  margin-top: 2px;
+}
+
+.active-room-rejoin {
+  font-size: 11px;
+  font-weight: 700;
+  color: #00c8ff;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+.lobby-spinner {
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(0, 200, 255, 0.2);
+  border-top-color: #00c8ff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==================== HEADER ROOM INFO ==================== */
+.header-room-info {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-room-name {
+  color: rgba(224, 224, 224, 0.7);
+  font-size: 13px;
+}
+
+.header-room-code {
+  color: #00c8ff;
+  font-size: 12px;
+  font-family: monospace;
+  letter-spacing: 2px;
+  background: rgba(0, 200, 255, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.header-actions {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-small {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
+/* ==================== QR CODE / INVITE PANEL ==================== */
+.qr-code-section {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgba(0, 200, 255, 0.15);
+  text-align: center;
+}
+
+.qr-code-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.qr-title {
+  color: #ff40ff;
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+}
+
+.qr-subtitle {
+  color: #ccc;
+  font-size: 14px;
+  font-style: italic;
+  margin: -8px 0 4px;
+}
+
+.qr-code-wrapper {
+  padding: 12px;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+  position: relative;
+  animation: qrPulse 3s ease-in-out infinite;
+}
+
+@keyframes qrPulse {
+  0%, 100% {
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(255, 0, 255, 0.6);
+  }
+}
+
+.qr-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.qr-scan-label {
+  color: #888;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.qr-room-name {
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.qr-invite-code {
+  color: #9d4edd;
+  font-size: 14px;
+  margin: 0;
+}
+
+.qr-invite-code span {
+  font-family: monospace;
+  color: #00ffff;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 3px;
+  text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
+}
+
+.qr-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* 3D flip between QR and Posse */
+.qr-flipper {
+  perspective: 600px;
+  width: 200px;
+  height: 180px;
+  position: relative;
+  transform-style: preserve-3d;
+}
+
+.qr-flipped .qr-code-wrapper {
+  animation: none;
+  box-shadow: none;
+}
+
+.qr-flip-front,
+.qr-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.6s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qr-flip-front {
+  transform: rotateY(0deg);
+}
+
+.qr-flip-back {
+  transform: rotateY(180deg);
+  background: #0d1117;
+  border-radius: 10px;
+  box-shadow: 0 0 25px rgba(255, 64, 255, 0.4);
+  padding: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+
+.qr-flipped .qr-flip-front {
+  transform: rotateY(-180deg);
+}
+
+.qr-flipped .qr-flip-back {
+  transform: rotateY(0deg);
+}
+
+.guest-overlay-title {
+  color: #ff40ff;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+  margin-bottom: 10px;
+  flex-shrink: 0;
+}
+
+.guest-overlay-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  overflow-y: auto;
+  flex: 1;
+  width: 100%;
+}
+
+.guest-toggle-btn {
+  color: #ff40ff !important;
+  min-width: 120px;
+  text-align: center;
+}
+
+.guest-panel-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 4px;
+  border-radius: 6px;
+  gap: 8px;
+}
+
+.guest-panel-name {
+  color: #ddd;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.guest-panel-time {
+  color: #ccc;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.guest-panel-item-left {
+  opacity: 0.5;
+}
+
+.guest-panel-item-left .guest-panel-name {
+  text-decoration: line-through;
+  color: #ccc;
+}
+
+.header-disconnected {
+  color: #ff4466;
+  font-size: 11px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
