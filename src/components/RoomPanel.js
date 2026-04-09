@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { QRCodeCanvas } from 'qrcode.react';
 
-const RoomPanel = ({ room, members }) => {
+const RoomPanel = ({ room, members, currentUserId }) => {
   const [flipped, setFlipped] = useState(false);
   const qrRef = useRef(null);
 
@@ -52,12 +52,15 @@ const RoomPanel = ({ room, members }) => {
           <div className="qr-flip-back">
             <h3 className="guest-overlay-title">Posse ({activeCount})</h3>
             <div className="guest-overlay-list">
-              {members.map((m) => (
-                <div key={m.id} className="guest-panel-item">
-                  <span className="guest-panel-name">{m.guestName || 'Host'}</span>
-                  <span className="guest-panel-time">joined {formatTime(m.joinedAt)}</span>
-                </div>
-              ))}
+              {members.map((m) => {
+                const isYou = currentUserId && m.userId === currentUserId;
+                return (
+                  <div key={m.id} className="guest-panel-item">
+                    <span className="guest-panel-name">{isYou ? 'You' : (m.guestName || 'Guest')}</span>
+                    <span className="guest-panel-time">joined {formatTime(m.joinedAt)}</span>
+                  </div>
+                );
+              })}
               {members.length === 0 && (
                 <div style={{ color: '#666', fontSize: 12, fontStyle: 'italic' }}>
                   No guests yet

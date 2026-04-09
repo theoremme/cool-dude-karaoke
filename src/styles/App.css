@@ -1600,34 +1600,22 @@ body::after {
   gap: 10px;
 }
 
-.btn-header-link {
+.btn-header-btn {
   background: none;
-  border: none;
+  border: 1px solid rgba(0, 200, 255, 0.4);
   color: #00c8ff;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  padding: 0;
+  padding: 6px 16px;
+  border-radius: 6px;
   transition: all 0.2s;
 }
 
-.btn-header-link:hover {
-  text-shadow: 0 0 8px rgba(0, 200, 255, 0.5);
-}
-
-.header-room-name {
-  color: rgba(224, 224, 224, 0.7);
-  font-size: 13px;
-}
-
-.header-room-code {
-  color: #00c8ff;
-  font-size: 12px;
-  font-family: monospace;
-  letter-spacing: 2px;
+.btn-header-btn:hover {
   background: rgba(0, 200, 255, 0.08);
-  padding: 2px 8px;
-  border-radius: 4px;
+  border-color: #00c8ff;
+  box-shadow: 0 0 10px rgba(0, 200, 255, 0.2);
 }
 
 .header-actions {
@@ -1640,18 +1628,14 @@ body::after {
 }
 
 .btn-header-bail {
-  background: none;
-  border: none;
-  color: #F56F27;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
-  transition: all 0.2s;
+  border-color: rgba(245, 111, 39, 0.4) !important;
+  color: #F56F27 !important;
 }
 
 .btn-header-bail:hover {
-  text-shadow: 0 0 8px rgba(245, 111, 39, 0.5);
+  background: rgba(245, 111, 39, 0.08) !important;
+  border-color: #F56F27 !important;
+  box-shadow: 0 0 10px rgba(245, 111, 39, 0.2) !important;
 }
 
 .btn-small {

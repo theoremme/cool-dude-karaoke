@@ -203,19 +203,13 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
             <span className="logo-subtitle">AMPED</span>
           </div>
           <div className="header-left">
-            <button className="btn-header-link" onClick={handleLobby}>Lobby</button>
-            {room && (
-              <>
-                <span className="header-room-name">{room.name}</span>
-                <span className="header-room-code">{room.inviteCode}</span>
-                {!connected && <span className="header-disconnected">Reconnecting...</span>}
-              </>
-            )}
+            <button className="btn-header-btn" onClick={handleLobby}>Lobby</button>
+            {!connected && <span className="header-disconnected">Reconnecting...</span>}
           </div>
           <div className="header-actions">
             {room && (
               <button
-                className="btn-header-bail"
+                className="btn-header-btn btn-header-bail"
                 onClick={handleBail}
               >
                 Bail
@@ -261,7 +255,7 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
           </div>
 
           <div className="panel-right">
-            <RoomPanel room={room} members={members} connected={connected} />
+            <RoomPanel room={room} members={members} currentUserId={user?.id} />
             <PlaylistQueue />
             <PlaylistSync />
           </div>
