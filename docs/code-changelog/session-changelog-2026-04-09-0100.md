@@ -81,8 +81,27 @@ Phase 1 convergence: Connected the Electron desktop app (Amped) to the Railway b
 - Non-embeddable songs not detected (YouTube search now fetches status part)
 - Stale playback state after web refresh (server persists in room settings JSON)
 
+## Late-Session Changes (after initial changelog)
+
+### Additional Commits (Electron)
+6. **c4db21b** — UI polish: header buttons, posse "You" label, dynamic backend URL, popup cleanup
+7. **4951ec8** — Bump version to v1.6
+
+### Additional Commits (Web)
+6. **c1aa1ff** — UI polish: posse "You" label, popup banner removed, mobile warning on lobby
+
+### Additional Changes
+- Removed popup instructions banner from web host dashboard (no longer relevant)
+- "This hits different on desktop" mobile warning moved to lobby page
+- Electron header: removed room name/code, Lobby and Bail now outlined buttons
+- Posse displays "You" for current user in both Amped and Unplugged (matched by userId)
+- Backend URL dynamic: `app.isPackaged` → Railway production, dev → localhost:3000
+- Amped download banner on web lobby and host dashboard ("Dude, Where's My Song?")
+- v1.6 release tagged and building on GitHub Actions
+
 ## Unresolved / Known Issues
 - YouTube playlist sync occasionally returns items out of order (sort fix added, needs verification)
 - YouTube OAuth publishing not wired up in Electron (placeholder "Open in Browser" button)
 - Reconnection from Unplugged back to Amped can be slightly rocky (playback may need a toggle)
 - Mac builds are unsigned — users will get Gatekeeper warning
+- v1.5 build may have had stale default URL (localhost) — v1.6 fixes this with dynamic detection
