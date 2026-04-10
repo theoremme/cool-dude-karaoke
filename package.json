@@ -1,6 +1,6 @@
 {
   "name": "cool-dude-karaoke",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "description": "Karaoke playlist desktop application for YouTube videos",
   "main": "main.js",
   "scripts": {
