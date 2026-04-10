@@ -271,6 +271,66 @@ body::after {
   text-overflow: ellipsis;
 }
 
+/* Loading overlay between songs */
+.player-loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  animation: loadingFadeIn 0.4s ease-out;
+}
+
+.player-loading-overlay.loading-fade-out {
+  animation: loadingFadeOut 0.5s ease-in forwards;
+}
+
+@keyframes loadingFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes loadingFadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.loading-fade-out {
+  animation: loadingFadeOut 0.5s ease-in forwards;
+}
+
+.player-loading-content {
+  text-align: center;
+}
+
+.player-loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(0, 200, 255, 0.15);
+  border-top-color: #00c8ff;
+  border-radius: 50%;
+  animation: spinGlow 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+@keyframes spinGlow {
+  to { transform: rotate(360deg); }
+}
+
+.player-loading-message {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: #00c8ff;
+  text-shadow: 0 0 10px rgba(0, 200, 255, 0.4);
+}
+
 .player-placeholder {
   width: 100%;
   height: 120px;

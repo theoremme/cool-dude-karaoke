@@ -181,6 +181,9 @@ function waitForPopoutVideo() {
         clearInterval(check);
         if (popoutWindow && !popoutWindow.isDestroyed()) {
           popoutWindow.show();
+          if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('popout-ready');
+          }
         }
       }
     } catch (e) {
@@ -193,6 +196,9 @@ function waitForPopoutVideo() {
     clearInterval(check);
     if (popoutWindow && !popoutWindow.isDestroyed() && !popoutWindow.isVisible()) {
       popoutWindow.show();
+      if (mainWindow && !mainWindow.isDestroyed()) {
+        mainWindow.webContents.send('popout-ready');
+      }
     }
   }, 8000);
 }

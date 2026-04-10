@@ -1,6 +1,27 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { usePlaylist } from '../contexts/PlaylistContext';
 
+const LOADING_MESSAGES = [
+  'Hold on to your butts...',
+  'Warming up the vocals...',
+  'Cueing the next banger...',
+  'Reticulating splines...',
+  'Tuning the karaoke machine...',
+  'Finding the right key...',
+  'Dude, patience...',
+  'Amping it up...',
+  'Getting the crowd hyped...',
+  'Adjusting the reverb...',
+  'Loading the good stuff...',
+  'Mic check, one two...',
+  'Spinning up the turntables...',
+  'Almost showtime...',
+  'Crank it to eleven...',
+];
+
+const getRandomMessage = () =>
+  LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
+
 const YOUTUBE_CLEANUP_CSS = `
   body > * { visibility: hidden !important; }
 
@@ -52,6 +73,26 @@ const VideoPlayer = () => {
   const pollRef = useRef(null);
   const lastStateRef = useRef(null);
   const [isPopout, setIsPopout] = useState(false);
+  const [loadingMessage, setLoadingMessage] = useState('');
+  const [showLoadingOverlay, setShowLoadingOverlay] = useState(false);
+  const [loadingFadingOut, setLoadingFadingOut] = useState(false);
+  const loadingTimerRef = useRef(null);
+  const loadingFadeRef = useRef(null);
+
+  const showLoading = useCallback(() => {
+    if (loadingTimerRef.current) clearTimeout(loadingTimerRef.current);
+    if (loadingFadeRef.current) clearTimeout(loadingFadeRef.current);
+    setLoadingMessage(getRandomMessage());
+    setLoadingFadingOut(false);
+    setShowLoadingOverlay(true);
+    loadingTimerRef.current = setTimeout(() => {
+      setLoadingFadingOut(true);
+      loadingFadeRef.current = setTimeout(() => {
+        setShowLoadingOverlay(false);
+        setLoadingFadingOut(false);
+      }, 500);
+    }, 3000);
+  }, []);
 
   const playNextRef = useRef(playNext);
   playNextRef.current = playNext;
@@ -197,6 +238,9 @@ const VideoPlayer = () => {
     currentVideoIdRef.current = currentItem.videoId;
     lastStateRef.current = null;
 
+    // Show loading overlay between songs (docked only — popout has its own injected overlay)
+    if (!isPopout) showLoading();
+
     if (isPopout) {
       // Load in popout window
       window.api.popoutLoadVideo(currentItem.videoId, currentItem.title);
@@ -285,9 +329,15 @@ const VideoPlayer = () => {
               visibility: webviewVisible ? 'visible' : 'hidden',
             }}
           />
-          <button className="btn-popout-overlay" onClick={handlePopout} title="Pop out video">
-            ⧉
-          </button>
+          {showLoadingOverlay && (
+            <div className={`player-loading-overlay ${loadingFadingOut ? 'loading-fade-out' : ''}`}>
+              <div className="player-loading-content">
+                <div className="player-loading-spinner"></div>
+                <p className="player-loading-message">{loadingMessage}</p>
+              </div>
+            </div>
+          )}
+          {/* Popout button disabled — use web app on second screen instead */}
         </div>
         {currentItem && (
           <div className="player-info">
@@ -298,7 +348,7 @@ const VideoPlayer = () => {
         )}
       </div>
 
-      {/* Popped-out placeholder */}
+      {/* Popped-out placeholder — popout disabled, kept for potential future use */}
       {hasVideo && isPopout && (
         <div className="player-popout-placeholder">
           <div className="popout-placeholder-content">

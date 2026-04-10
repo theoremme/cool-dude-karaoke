@@ -155,6 +155,7 @@ The key is stored in `api-settings.json` in `app.getPath('userData')` via `ApiKe
 - `.env` contains real API keys and is included in the electron-builder package — keys can be extracted from the ASAR. Fix: remove from builder files config once Railway auth is in place.
 - `webview-preload.js` uses `unsafe-eval` in CSP. Tighten in Phase 4.
 - Several stale dev docs in root: `PHASE-1-PROMPT.md`, `PHASE-2-PROMPT.md`, `api-key-architecture.md`, `karaoke-app-prompt.md`, `karaoke-app-development-plan.md` — ignore these, they describe the old standalone app.
+- Popout player is disabled (button hidden) — second screen use case is handled by the web app instead. All popout code in `main.js` (IPC handlers, `waitForPopoutVideo`, `POPOUT_CSS`, polling) and `VideoPlayer.js`/`preload.js` (popout state, IPC listeners) can be fully removed in Phase 4 cleanup.
 
 ---
 
