@@ -31,9 +31,9 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
   const [members, setMembers] = useState([]);
   const joinedRef = useRef(false);
 
-  // Join room via socket on mount
+  // Join room via socket on mount and on reconnect
   useEffect(() => {
-    if (!connected || !room || joinedRef.current) return;
+    if (!connected || !room) return;
     joinedRef.current = true;
     joinRoom(room, user?.id);
   }, [connected, room, user, joinRoom]);
