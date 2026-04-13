@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
 * {
   margin: 0;
   padding: 0;
@@ -86,6 +88,12 @@ body::after {
 
 .app-header {
   position: relative;
+}
+
+.app-header .logo-subtitle {
+  margin-top: -60px;
+  padding-top: 0;
+  padding-right: 20%;
 }
 
 .app-logo {
@@ -323,7 +331,7 @@ body::after {
 }
 
 .player-loading-message {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.85rem;
   font-weight: 500;
   letter-spacing: 0.1em;
@@ -1376,6 +1384,7 @@ body::after {
     0 0 80px rgba(0, 200, 255, 0.4);
   transform: rotate(-7deg);
   margin-top: -60px;
+  margin-bottom: 36px;
   text-align: right;
   padding-right: 8%;
   position: relative;
@@ -1397,7 +1406,7 @@ body::after {
 .lobby-card .logo-subtitle {
   font-size: 28px;
   letter-spacing: 10px;
-  margin-top: -74px;
+  margin-top: -94px;
   padding-right: 45px;
   transform: rotate(-6deg);
 }
@@ -1423,6 +1432,12 @@ body::after {
   z-index: 1;
   padding: 20px;
   overflow-y: auto;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 .auth-card,
@@ -1434,14 +1449,50 @@ body::after {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 0 30px rgba(0, 200, 255, 0.1), 0 0 60px rgba(157, 0, 255, 0.05);
+  transition: height 0.2s ease;
 }
 
-.auth-card h2,
 .lobby-card h2 {
-  font-family: 'Orbitron', sans-serif;
+  display: none;
+}
+
+.lobby-greeting {
+  color: #ff40ff;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+  margin-bottom: 30px;
+}
+
+.lobby-footer {
+  text-align: center;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(0, 200, 255, 0.1);
+}
+
+.btn-logout {
+  background: none;
+  border: none;
+  color: rgba(245, 111, 39, 0.5);
+  cursor: pointer;
+  font-size: 12px;
+  font-family: 'Space Grotesk', sans-serif;
+  transition: color 0.2s;
+}
+
+.btn-logout:hover {
+  color: #F56F27;
+}
+
+.auth-card h2 {
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 20px;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   color: #ff40ff;
   text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
   text-align: center;
@@ -1450,8 +1501,9 @@ body::after {
 
 .auth-logo {
   display: block;
-  margin: 0 auto 20px;
+  margin: 0 auto 40px;
   height: 200px;
+  min-height: 200px;
   max-width: 100%;
   object-fit: contain;
 }
@@ -1487,7 +1539,7 @@ body::after {
 
 .whitelist-message {
   text-align: center;
-  color: rgba(0, 200, 255, 0.6);
+  color: #888;
   font-size: 14px;
   line-height: 1.6;
   margin-bottom: 24px;
@@ -1522,14 +1574,13 @@ body::after {
 .auth-forgot button {
   background: none;
   border: none;
-  color: rgba(0, 200, 255, 0.4);
+  color: #666;
   cursor: pointer;
   font-size: 12px;
-  transition: color 0.2s;
 }
 
 .auth-forgot button:hover {
-  color: #00c8ff;
+  color: #cc00ff;
 }
 
 /* ==================== FORM INPUTS (shared) ==================== */
@@ -1539,6 +1590,7 @@ body::after {
 
 .form-group label {
   display: block;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 12px;
   color: #888;
   margin-bottom: 6px;
@@ -1605,8 +1657,7 @@ body::after {
 }
 
 .active-rooms h2 {
-  font-size: 16px !important;
-  margin-bottom: 12px !important;
+  display: none !important;
 }
 
 .active-rooms-list {
@@ -1655,6 +1706,7 @@ body::after {
 }
 
 .active-room-rejoin {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 11px;
   font-weight: 700;
   color: #00c8ff;
@@ -1691,7 +1743,6 @@ body::after {
   border: 1px solid rgba(0, 200, 255, 0.4);
   color: #00c8ff;
   font-size: 12px;
-  font-weight: 600;
   cursor: pointer;
   padding: 6px 16px;
   border-radius: 6px;
@@ -1953,7 +2004,7 @@ body::after {
 }
 
 .bail-modal h2 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   font-size: 20px;
   color: #ff40ff;
@@ -2028,7 +2079,7 @@ body::after {
 }
 
 .closeout-room-name {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 500;
   font-size: 1.1rem;
   letter-spacing: 0.15em;
@@ -2054,7 +2105,7 @@ body::after {
   border-radius: 20px;
   color: #00c8ff;
   font-size: 0.85rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   letter-spacing: 0.1em;
 }
 
@@ -2076,7 +2127,7 @@ body::after {
 }
 
 .closeout-action-card h3 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.85rem;
   font-weight: 700;
   letter-spacing: 0.1em;
@@ -2148,7 +2199,7 @@ body::after {
 }
 
 .closeout-setlist h3 {
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -2182,7 +2233,7 @@ body::after {
 .closeout-song-num {
   color: #333;
   font-size: 0.8rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   min-width: 24px;
   text-align: right;
 }
@@ -2214,7 +2265,7 @@ body::after {
   margin-top: 20px;
   padding: 14px 40px;
   font-size: 1rem;
-  font-family: 'Orbitron', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   font-weight: 700;
   letter-spacing: 0.1em;
   align-self: center;

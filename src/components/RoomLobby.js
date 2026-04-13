@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import * as authService from '../services/authService';
 import logo from '../assets/cool-dude-karaoke-logo-v2-nobg.png';
+
+const GREETINGS = [
+  { text: "What's good,", end: "?" },
+  { text: "'Sup,", end: "?" },
+  { text: "What's poppin',", end: "?" },
+  { text: "Yo, what up", end: "?" },
+  { text: "Oh snap, it's", end: "!" },
+];
 
 const RoomLobby = ({ onJoinRoom }) => {
   const { user, logout } = useAuth();
@@ -11,6 +19,7 @@ const RoomLobby = ({ onJoinRoom }) => {
   const [error, setError] = useState(null);
   const [activeRooms, setActiveRooms] = useState([]);
   const [roomsLoading, setRoomsLoading] = useState(true);
+  const greeting = useMemo(() => GREETINGS[Math.floor(Math.random() * GREETINGS.length)], []);
 
   useEffect(() => {
     authService.getMyRooms()
@@ -64,23 +73,9 @@ const RoomLobby = ({ onJoinRoom }) => {
           <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
           <span className="logo-subtitle">AMPED</span>
         </div>
-        <div style={{ textAlign: 'center', marginBottom: 16 }}>
-          <span style={{ color: '#888', fontSize: 13 }}>
-            Welcome, {user?.name || user?.email}
-          </span>
-          <button
-            onClick={logout}
-            style={{
-              marginLeft: 12,
-              background: 'none',
-              border: 'none',
-              color: '#ff4466',
-              cursor: 'pointer',
-              fontSize: 12,
-            }}
-          >
-            Logout
-          </button>
+
+        <div className="lobby-greeting">
+          {greeting.text} {user?.name || user?.email}{greeting.end}
         </div>
 
         {roomsLoading ? (
@@ -150,6 +145,12 @@ const RoomLobby = ({ onJoinRoom }) => {
               Join Room
             </button>
           </form>
+        </div>
+
+        <div className="lobby-footer">
+          <button onClick={logout} className="btn-logout">
+            Logout
+          </button>
         </div>
       </div>
     </div>
