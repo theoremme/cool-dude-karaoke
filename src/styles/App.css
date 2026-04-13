@@ -1485,6 +1485,14 @@ body::after {
   margin-bottom: 12px;
 }
 
+.whitelist-message {
+  text-align: center;
+  color: rgba(0, 200, 255, 0.6);
+  font-size: 14px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
 .auth-submit {
   margin-top: 4px;
 }

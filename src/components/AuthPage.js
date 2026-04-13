@@ -10,6 +10,7 @@ const AuthPage = () => {
   const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [whitelisted, setWhitelisted] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +28,11 @@ const AuthPage = () => {
         || err.response?.data?.errors?.[0]?.msg
         || err.message
         || 'Something went wrong';
-      setError(msg);
+      if (!isLogin && msg.includes('Bowie')) {
+        setWhitelisted(false);
+      } else {
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -39,6 +44,12 @@ const AuthPage = () => {
     window.api.openExternal(resetUrl);
   };
 
+  const switchMode = (login) => {
+    setIsLogin(login);
+    setError(null);
+    setWhitelisted(true);
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -46,61 +57,76 @@ const AuthPage = () => {
           <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
           <span className="logo-subtitle">AMPED</span>
         </div>
-        <h2>{isLogin ? 'Welcome Back, Dude' : 'Join the Party'}</h2>
 
-        {error && <div className="auth-error">{error}</div>}
-
-        <form onSubmit={handleSubmit}>
-          {!isLogin && (
-            <div className="form-group">
-              <input
-                type="text"
-                placeholder="Your name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                required={!isLogin}
-              />
-            </div>
-          )}
-          <div className="form-group">
-            <input
-              type="email"
-              placeholder="Email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <input
-              type="password"
-              placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={6}
-            />
-          </div>
-
-          <button type="submit" className="btn-primary" disabled={loading}>
-            {loading ? 'Hold tight...' : isLogin ? 'Log In' : 'Sign Up'}
-          </button>
-        </form>
-
-        {isLogin && (
-          <div className="auth-forgot">
-            <button onClick={handleForgotPassword}>
-              Forgot Password?
+        {!whitelisted ? (
+          <>
+            <h2>Even Bowie Waited Backstage</h2>
+            <p className="whitelist-message">
+              Email cooldudekaraoke@gmail.com to request access while we're in Beta.
+            </p>
+            <button className="btn-primary" onClick={() => switchMode(true)}>
+              Return to Login
             </button>
-          </div>
-        )}
+          </>
+        ) : (
+          <>
+            <h2>{isLogin ? 'You had me at hello.' : 'Join the Party'}</h2>
 
-        <button
-          className="auth-toggle"
-          onClick={() => { setIsLogin(!isLogin); setError(null); }}
-        >
-          {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
-        </button>
+            {error && <div className="auth-error">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              {!isLogin && (
+                <div className="form-group">
+                  <input
+                    type="text"
+                    placeholder="Your name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    required={!isLogin}
+                  />
+                </div>
+              )}
+              <div className="form-group">
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  minLength={6}
+                />
+              </div>
+
+              <button type="submit" className="btn-primary" disabled={loading}>
+                {loading ? 'Hold tight...' : isLogin ? 'Log In' : 'Sign Up'}
+              </button>
+            </form>
+
+            {isLogin && (
+              <div className="auth-forgot">
+                <button onClick={handleForgotPassword}>
+                  Forgot Password?
+                </button>
+              </div>
+            )}
+
+            <button
+              className="auth-toggle"
+              onClick={() => switchMode(!isLogin)}
+            >
+              {isLogin ? "Don't have an account? Sign up" : 'Already have an account? Log in'}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
