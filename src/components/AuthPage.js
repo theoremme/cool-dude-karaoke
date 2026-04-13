@@ -38,10 +38,8 @@ const AuthPage = () => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    const backendUrl = await window.api.backendUrlGet();
-    const resetUrl = `${backendUrl}/login`;
-    window.api.openExternal(resetUrl);
+  const handleForgotPassword = () => {
+    window.api.openExternal('https://www.cooldudekaraoke.com/forgot-password');
   };
 
   const switchMode = (login) => {
@@ -60,9 +58,9 @@ const AuthPage = () => {
 
         {!whitelisted ? (
           <>
-            <h2>Even Bowie Waited Backstage</h2>
+            <h2>Even Bowie waited backstage...</h2>
             <p className="whitelist-message">
-              Email cooldudekaraoke@gmail.com to request access while we're in Beta.
+              Email <span style={{ color: '#00c8ff' }}>cooldudekaraoke@gmail.com</span> to request access while we're in Beta.
             </p>
             <button className="btn-primary" onClick={() => switchMode(true)}>
               Return to Login
