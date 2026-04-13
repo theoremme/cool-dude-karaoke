@@ -38,8 +38,9 @@ const AuthPage = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    window.api.openExternal('https://www.cooldudekaraoke.com/forgot-password');
+  const handleForgotPassword = async () => {
+    const backendUrl = await window.api.backendUrlGet();
+    window.api.openExternal(`${backendUrl}/forgot-password`);
   };
 
   const switchMode = (login) => {

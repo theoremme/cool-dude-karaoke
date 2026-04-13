@@ -161,7 +161,7 @@ class ApiKeyManager {
   getBackendUrl() {
     const settings = readSettings();
     const defaultUrl = app.isPackaged
-      ? 'https://cool-dude-karaoke-web-production.up.railway.app'
+      ? 'https://www.cooldudekaraoke.com'
       : 'http://localhost:3000';
     return settings.backendUrl || defaultUrl;
   }

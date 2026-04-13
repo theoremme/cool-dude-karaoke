@@ -5,20 +5,24 @@ const Settings = ({ isOpen, onClose }) => {
   const [anthropicKey, setAnthropicKey] = useState('');
   const [status, setStatus] = useState(null);
   const [vibePrompt, setVibePrompt] = useState('');
+  const [backendUrl, setBackendUrl] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState(null);
   const [anthropicMessage, setAnthropicMessage] = useState(null);
   const [vibeMessage, setVibeMessage] = useState(null);
+  const [backendMessage, setBackendMessage] = useState(null);
 
   useEffect(() => {
     if (isOpen) {
       loadStatus();
       loadVibePrompt();
+      loadBackendUrl();
       setApiKey('');
       setAnthropicKey('');
       setMessage(null);
       setAnthropicMessage(null);
       setVibeMessage(null);
+      setBackendMessage(null);
     }
   }, [isOpen]);
 
@@ -26,6 +30,17 @@ const Settings = ({ isOpen, onClose }) => {
     const result = await window.api.vibePromptGet();
     setVibePrompt(result.prompt || '');
   };
+
+  const loadBackendUrl = async () => {
+    const url = await window.api.backendUrlGet();
+    setBackendUrl(url || '');
+  };
+
+  const handleSaveBackendUrl = useCallback(async () => {
+    if (!backendUrl.trim()) return;
+    await window.api.backendUrlSet(backendUrl.trim());
+    setBackendMessage({ type: 'success', text: 'Backend URL saved! Restart the app for it to take effect.' });
+  }, [backendUrl]);
 
   const loadStatus = async () => {
     const result = await window.api.apikeyGetStatus();
@@ -87,8 +102,52 @@ const Settings = ({ isOpen, onClose }) => {
         </div>
 
         <div className="settings-body">
-          {/* YouTube API Key */}
+          {/* Backend URL */}
           <div className="settings-section">
+            <h3>Backend URL</h3>
+            <p className="settings-description">
+              The server URL that Amped connects to for rooms, playlists, and auth.
+              Only change this if you're running a local dev server.
+            </p>
+
+            <div className="settings-input-row">
+              <input
+                type="text"
+                className="settings-input"
+                placeholder="https://www.cooldudekaraoke.com"
+                value={backendUrl}
+                onChange={(e) => setBackendUrl(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && backendUrl.trim() && handleSaveBackendUrl()}
+              />
+              <button
+                className="btn-neon btn-small"
+                onClick={handleSaveBackendUrl}
+                disabled={!backendUrl.trim()}
+              >
+                Save
+              </button>
+            </div>
+
+            <button
+              className="btn-neon btn-small btn-danger settings-reset"
+              onClick={async () => {
+                await window.api.backendUrlSet('');
+                setBackendMessage({ type: 'success', text: 'Reset to default URL.' });
+                loadBackendUrl();
+              }}
+            >
+              Reset to Default
+            </button>
+
+            {backendMessage && (
+              <div className={`settings-message settings-message-${backendMessage.type}`}>
+                {backendMessage.text}
+              </div>
+            )}
+          </div>
+
+          {/* YouTube API Key */}
+          <div className="settings-section settings-section-divider">
             <h3>YouTube API Key</h3>
             <p className="settings-description">
               Use your own YouTube API key for higher quota limits.
@@ -244,6 +303,7 @@ const Settings = ({ isOpen, onClose }) => {
               </div>
             )}
           </div>
+
         </div>
       </div>
     </div>
