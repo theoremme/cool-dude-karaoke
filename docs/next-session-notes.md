@@ -43,6 +43,7 @@
 - Tighten CSP (unsafe-eval in webview-preload)
 - Fix YouTube quota counter (reset at midnight)
 - React 18 → 19 upgrade
+- Configure custom Resend domain (add DNS records, set FROM_EMAIL env var on Railway to noreply@cooldudekaraoke.com)
 
 ### Services status
 - Electron (Amped) — running at session end

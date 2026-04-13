@@ -56,6 +56,9 @@ contextBridge.exposeInMainWorld('api', {
   backendUrlGet: () => ipcRenderer.invoke('backend-url-get'),
   backendUrlSet: (url) => ipcRenderer.invoke('backend-url-set', url),
 
+  // Open URL in default browser
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
+
   // Auth token (persisted in userData)
   authTokenGet: () => ipcRenderer.invoke('auth-token-get'),
   authTokenSet: (token) => ipcRenderer.invoke('auth-token-set', token),

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, shell } = require('electron');
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
@@ -335,6 +335,14 @@ ipcMain.handle('backend-url-get', async () => {
 ipcMain.handle('backend-url-set', async (event, url) => {
   apiKeyManager.setBackendUrl(url);
   return { success: true };
+});
+
+// --- Open External URL ---
+
+ipcMain.handle('open-external', async (event, url) => {
+  if (typeof url === 'string' && (url.startsWith('https://') || url.startsWith('http://'))) {
+    await shell.openExternal(url);
+  }
 });
 
 // --- Auth Token ---

@@ -33,6 +33,12 @@ const AuthPage = () => {
     }
   };
 
+  const handleForgotPassword = async () => {
+    const backendUrl = await window.api.backendUrlGet();
+    const resetUrl = `${backendUrl}/login`;
+    window.api.openExternal(resetUrl);
+  };
+
   return (
     <div className="auth-page">
       <div className="auth-card">
@@ -80,6 +86,14 @@ const AuthPage = () => {
             {loading ? 'Hold tight...' : isLogin ? 'Log In' : 'Sign Up'}
           </button>
         </form>
+
+        {isLogin && (
+          <div className="auth-forgot">
+            <button onClick={handleForgotPassword}>
+              Forgot Password?
+            </button>
+          </div>
+        )}
 
         <button
           className="auth-toggle"

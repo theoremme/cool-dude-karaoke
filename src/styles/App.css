@@ -1506,6 +1506,24 @@ body::after {
   color: #00c8ff;
 }
 
+.auth-forgot {
+  text-align: center;
+  margin-top: 12px;
+}
+
+.auth-forgot button {
+  background: none;
+  border: none;
+  color: rgba(0, 200, 255, 0.4);
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 0.2s;
+}
+
+.auth-forgot button:hover {
+  color: #00c8ff;
+}
+
 /* ==================== FORM INPUTS (shared) ==================== */
 .form-group {
   margin-bottom: 16px;
