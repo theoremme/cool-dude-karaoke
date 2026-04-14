@@ -38,6 +38,21 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
     joinRoom(room, user?.id);
   }, [connected, room, user, joinRoom]);
 
+  // On reconnect, verify the room is still active
+  useEffect(() => {
+    if (!connected || !room) return;
+    authService.getRoomByInviteCode(room.inviteCode || room.invite_code)
+      .then((data) => {
+        if (data.room && !data.room.isActive) {
+          onCloseRoom(data.room, []);
+        }
+      })
+      .catch(() => {
+        // Room not found — treat as closed
+        onLeaveRoom();
+      });
+  }, [connected]);
+
   // Listen for room-level socket events
   useEffect(() => {
     if (!socket) return;
@@ -287,6 +302,7 @@ const AppRouter = () => {
   const [closeoutData, setCloseoutData] = useState(null); // { room, playlist }
   const [backendUrl, setBackendUrl] = useState(null);
   const [token, setToken] = useState(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Load backend URL and token for socket
   useEffect(() => {
@@ -335,7 +351,12 @@ const AppRouter = () => {
   }
 
   if (!user) {
-    return <AuthPage />;
+    return (
+      <>
+        <AuthPage onOpenSettings={() => setSettingsOpen(true)} />
+        <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      </>
+    );
   }
 
   if (closeoutData) {
@@ -343,7 +364,12 @@ const AppRouter = () => {
   }
 
   if (!currentRoom) {
-    return <RoomLobby onJoinRoom={handleJoinRoom} />;
+    return (
+      <>
+        <RoomLobby onJoinRoom={handleJoinRoom} onOpenSettings={() => setSettingsOpen(true)} />
+        <Settings isOpen={settingsOpen} onClose={() => setSettingsOpen(false)} />
+      </>
+    );
   }
 
   return (

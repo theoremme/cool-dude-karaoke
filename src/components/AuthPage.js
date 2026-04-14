@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import logo from '../assets/cool-dude-karaoke-logo-v2-nobg.png';
 
-const AuthPage = () => {
+const AuthPage = ({ onOpenSettings }) => {
   const { login, register } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
@@ -126,6 +126,9 @@ const AuthPage = () => {
             </button>
           </>
         )}
+        <div className="auth-settings">
+          <button onClick={onOpenSettings} className="btn-lobby-settings">⚙</button>
+        </div>
       </div>
     </div>
   );

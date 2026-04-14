@@ -11,7 +11,7 @@ const GREETINGS = [
   { text: "Oh snap, it's", end: "!" },
 ];
 
-const RoomLobby = ({ onJoinRoom }) => {
+const RoomLobby = ({ onJoinRoom, onOpenSettings }) => {
   const { user, logout } = useAuth();
   const [roomName, setRoomName] = useState('');
   const [joinCode, setJoinCode] = useState('');
@@ -148,6 +148,7 @@ const RoomLobby = ({ onJoinRoom }) => {
         </div>
 
         <div className="lobby-footer">
+          <button onClick={onOpenSettings} className="btn-lobby-settings">⚙</button>
           <button onClick={logout} className="btn-logout">
             Logout
           </button>
