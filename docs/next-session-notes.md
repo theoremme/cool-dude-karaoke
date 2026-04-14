@@ -1,40 +1,52 @@
-## Next Session Notes (updated 2026-04-10)
+## Next Session Notes (updated 2026-04-13)
 
 ### What was completed this session
-- Closeout page CSS polish: tron grid visible, proper spacing, centered titles (Amped)
-- Loading overlay between songs in docked player with fun messages and fade in/out
-- Popout player disabled — second screen use case handled by web app instead
-- UNPLUGGED subtitle scales proportionally to logo in room and mobile views
-- Mobile host header: Lobby/Bail above logo, neon line, room name removed
-- Non-embeddable videos hidden in Vibe "Show Versions" (unplugged mode)
-- Playlist sync now tags items with embeddable status (grey out + "Amped Only" badge)
-- Vibe API: added 3 retries + 60s timeout to fix intermittent failures
-- Room-closed event now reaches Amped after socket reconnect (re-join fix)
-- Mobile warning shows once in lobby only, persisted via sessionStorage
-- Amped download banner temporarily hidden on Unplugged
-- Logo subtitle rotation changed to -6deg
-- Released v1.7, v1.8, v1.9
+- Password reset flow via Resend (both Amped and Unplugged)
+- Beta whitelist with admin page (/admin, "Backstage" button on lobby)
+- Space Grotesk font added as secondary font across both apps
+- Lobby redesign: random greetings, hidden h2s, logout footer
+- Dynamic AMPED/UNPLUGGED logo switching based on playbackMode
+- Backend URL field added to Electron Settings panel
+- Default production URL changed to www.cooldudekaraoke.com
+- CSP updated for cooldudekaraoke.com
+- Guest socket fixed (no auth token) to prevent duplicate posse entries
+- Guest view now listens for mode-changed events (full library unlocked in amped mode)
+- Amped disconnect countdown shown on mobile and desktop Unplugged
+- Countdown shortened from 30s to 10s
+- "Add songs and hit play" video placeholder removed
+- Mobile tap-to-watch disabled
+- Resend domain configured (cooldudekaraoke.com verified, DNS records in Namecheap)
+- Tech stack reference doc created (docs/tech-stack.md)
+- Released v2.0, v2.1, v2.2, v2.3
 
 ### Known issues to investigate
 1. YouTube playlist sync ordering — sort fix added but still unverified with a real playlist
 2. Reconnection from Unplugged back to Amped can require a play/pause toggle to start video
 3. YouTube OAuth publishing in Electron uses "Open in Browser" workaround
-4. v1.9 needs testing on Mac (Windows confirmed working)
+4. Amped disconnect countdown not confirmed working on production (tested locally only)
+5. Persisted backend URL in electron-store can override defaults — users upgrading from old builds may have stale Railway URL saved
+6. Mac builds need testing (Windows confirmed working)
 
 ### Decisions made
-- Popout player disabled (button hidden), code kept for potential future use, full removal in Phase 4
-- Amped download banner temporarily hidden — re-enable by changing display:none to display:flex in web App.css
-- Considered Gemini for Vibe instead of Anthropic — deferred, retry fix should handle intermittent errors
-- Phase 2 (yt-dlp) still deferred — risk to YouTube API quota review
+- Resend for transactional email, cooldudekaraoke.com verified as sending domain
+- Database table for beta whitelist (not env var), managed via /admin page
+- Space Grotesk as secondary font, Orbitron only for logo subtitle + closeout title
+- Logo dynamically switches AMPED/UNPLUGGED instead of separate badges
+- Guest socket connects without auth token to prevent userId collision with host
+- OAuth for login deferred to later phase
+- Amped disconnect countdown shortened to 10 seconds
+- www.cooldudekaraoke.com as default production backend URL
 
 ### Suggested priorities for next session
-1. Test v1.9 on Mac
-2. End-to-end test on production Railway (create room Unplugged, join Amped, playlist sync, close room)
-3. Smooth out Amped reconnection (video auto-start after mode transition)
-4. Phase 4 polish: consolidate YouTube cleanup CSS (3 places), remove dead webview-preload code, remove popout player code
-5. Add "Backend URL" field to Electron Settings panel
-6. Re-enable Amped download banner when ready
-7. Consider cooldudekaraoke.com landing page with download links
+1. End-to-end test on production (create room Unplugged, join Amped, verify logo switch, close Amped, verify countdown + fallback)
+2. Test password reset on production (forgot password → email → reset → login)
+3. Test beta whitelist on production (try registering with non-whitelisted email)
+4. Verify guest posse fix on production (guest shows as separate person)
+5. Set FROM_EMAIL on Railway to noreply@cooldudekaraoke.com (currently uses onboarding@resend.dev default)
+6. Phase 4 polish: consolidate YouTube cleanup CSS, remove dead webview-preload code, remove popout player code
+7. Re-enable Amped download banner when ready
+8. Consider cooldudekaraoke.com landing page with download links
+9. Test on Mac
 
 ### Phase 4 cleanup list
 - Remove popout player code (main.js IPC handlers, POPOUT_CSS, polling; VideoPlayer.js popout state; preload.js listeners)
@@ -43,10 +55,10 @@
 - Tighten CSP (unsafe-eval in webview-preload)
 - Fix YouTube quota counter (reset at midnight)
 - React 18 → 19 upgrade
-- Configure custom Resend domain (add DNS records, set FROM_EMAIL env var on Railway to noreply@cooldudekaraoke.com)
+- Set FROM_EMAIL env var on Railway to noreply@cooldudekaraoke.com
 
 ### Services status
-- Electron (Amped) — running at session end
-- Web client (Vite) — not confirmed running
-- Backend (nodemon) — not confirmed running
-- Docker (karaoke-postgres) — not confirmed running
+- Electron (Amped) — running at session end (local, connected to localhost:3000)
+- Web client (Vite) — running on port 5174
+- Backend (nodemon) — running on port 3000
+- Docker (karaoke-postgres) — running
