@@ -99,6 +99,29 @@ Auth overhaul: password reset via Resend, beta whitelist with admin page, Space 
 - cooldudekaraoke.com as default production backend URL
 - OAuth deferred to later phase
 
+## Late-Session Changes (after initial changelog)
+
+### Additional Commits (Electron)
+11. **ef3009c** — Add Settings to login/lobby, check room active on reconnect
+12. **a847941** — Bump version to v2.4
+
+### Additional Changes (Electron)
+- Settings gear icon added to login page and lobby footer (accessible without joining a room)
+- On socket reconnect, Amped verifies room is still active via REST API — goes to closeout if room was closed while disconnected (e.g. computer sleep)
+- `src/App.js` — Settings state at App level, reconnect room check, Settings passed to AuthPage and lobby
+- `src/components/AuthPage.js` — Added `onOpenSettings` prop, gear button at bottom of card
+- `src/components/RoomLobby.js` — Added `onOpenSettings` prop, gear button in lobby footer
+- `src/styles/App.css` — `.btn-lobby-settings` and `.auth-settings` styles
+
+### Additional Commits (Web repo)
+12. **6695f8e** — Logo switches between AMPED/UNPLUGGED based on mode, remove video placeholder
+
+### Bug Fixes
+- Room staying active in Amped after server closed it during computer sleep (socket missed room-closed event) — fixed with reconnect room check
+
+### Releases
+- v2.4 — Settings on login/lobby, reconnect room check
+
 ## External Services Configured
 - Resend account created, API key set on Railway and local .env
 - cooldudekaraoke.com domain verified in Resend for sending email

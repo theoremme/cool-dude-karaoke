@@ -1,4 +1,4 @@
-## Next Session Notes (updated 2026-04-13)
+## Next Session Notes (updated 2026-04-14)
 
 ### What was completed this session
 - Password reset flow via Resend (both Amped and Unplugged)
@@ -8,6 +8,8 @@
 - Dynamic AMPED/UNPLUGGED logo switching based on playbackMode
 - Backend URL field added to Electron Settings panel
 - Default production URL changed to www.cooldudekaraoke.com
+- Settings accessible from login page and lobby (gear icon)
+- Amped checks if room is still active on socket reconnect (fixes stale room after sleep)
 - CSP updated for cooldudekaraoke.com
 - Guest socket fixed (no auth token) to prevent duplicate posse entries
 - Guest view now listens for mode-changed events (full library unlocked in amped mode)
@@ -17,7 +19,7 @@
 - Mobile tap-to-watch disabled
 - Resend domain configured (cooldudekaraoke.com verified, DNS records in Namecheap)
 - Tech stack reference doc created (docs/tech-stack.md)
-- Released v2.0, v2.1, v2.2, v2.3
+- Released v2.0, v2.1, v2.2, v2.3, v2.4
 
 ### Known issues to investigate
 1. YouTube playlist sync ordering — sort fix added but still unverified with a real playlist
