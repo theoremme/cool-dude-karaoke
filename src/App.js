@@ -13,6 +13,7 @@ import PlaylistSync from './components/PlaylistSync';
 import RoomPanel from './components/RoomPanel';
 import Closeout from './components/Closeout';
 import Settings from './components/Settings';
+import * as authService from './services/authService';
 import logo from './assets/cool-dude-karaoke-logo-v2-nobg.png';
 import './styles/App.css';
 
@@ -34,6 +35,8 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
   // Join room via socket on mount and on reconnect
   useEffect(() => {
     if (!connected || !room) return;
+    // Reset members to avoid stale accumulation across reconnects
+    setMembers([]);
     joinedRef.current = true;
     joinRoom(room, user?.id);
   }, [connected, room, user, joinRoom]);
@@ -68,7 +71,16 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
     };
 
     const handleUserJoined = (member) => {
-      setMembers((prev) => [...prev, member]);
+      setMembers((prev) => {
+        // Deduplicate — same userId may join from multiple sockets (Amped + Unplugged)
+        if (member.userId && prev.some((m) => m.userId === member.userId)) {
+          return prev;
+        }
+        if (prev.some((m) => m.id === member.id)) {
+          return prev;
+        }
+        return [...prev, member];
+      });
     };
 
     const handleUserLeft = ({ id }) => {
