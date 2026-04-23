@@ -18,6 +18,11 @@ jobs:
 
       - run: npm ci
 
+      - name: Create .env from secrets
+        run: |
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
+
       - run: npm run dist -- --publish never
 
       - uses: actions/upload-artifact@v4
@@ -35,6 +40,11 @@ jobs:
           node-version: 20
 
       - run: npm ci
+
+      - name: Create .env from secrets
+        run: |
+          echo "YOUTUBE_API_KEY=${{ secrets.YOUTUBE_API_KEY }}" > .env
+          echo "ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}" >> .env
 
       - run: npm run dist -- --mac --x64 --arm64 --publish never
 

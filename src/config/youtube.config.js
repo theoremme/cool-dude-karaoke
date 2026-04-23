@@ -6,8 +6,8 @@
  */
 
 const YOUTUBE_CONFIG = {
-  // Fallback API key from .env (local dev only — not shipped in packaged app)
-  // Users must set their own key via Settings in production builds
+  // Fallback API key from .env (local dev) or CI-injected .env (packaged builds).
+  // Users can override via Settings panel.
   DEFAULT_API_KEY: process.env.YOUTUBE_API_KEY || null,
 
   // API base URL
