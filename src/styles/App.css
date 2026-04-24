@@ -15,6 +15,7 @@ body {
 }
 
 .app {
+  --logo-h: calc(270px * var(--logo-scale, 1));  /* Room: 270px base */
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -79,7 +80,7 @@ body::after {
 /* ==================== HEADER ==================== */
 .app-header {
   background: #000000;
-  padding: 10px 30px;
+  padding: clamp(4px, 1vh, 10px) 30px;
   text-align: center;
   position: relative;
   z-index: 1;
@@ -90,10 +91,8 @@ body::after {
   position: relative;
 }
 
-.app-header .logo-subtitle {
-  margin-top: -60px;
-  padding-top: 0;
-  padding-right: 20%;
+.app-header .logo-wrap {
+  zoom: var(--logo-scale, 1);
 }
 
 .app-logo {
@@ -103,24 +102,20 @@ body::after {
 
 .btn-settings {
   background: none;
-  border: 1px solid rgba(0, 200, 255, 0.3);
-  color: #00c8ff;
+  border: none;
+  color: rgba(255, 64, 255, 0.6);
   font-size: 20px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.6;
+  padding: 4px;
 }
 
 .btn-settings:hover {
-  opacity: 1;
-  border-color: #00c8ff;
-  box-shadow: 0 0 10px rgba(0, 200, 255, 0.3);
+  color: #ff40ff;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
   transform: rotate(45deg);
 }
 
@@ -144,12 +139,13 @@ body::after {
 }
 
 .panel-right {
-  width: 380px;
+  width: clamp(280px, 25vw, 380px);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
   border-left: 1px solid rgba(0, 200, 255, 0.15);
   background: rgba(0, 0, 0, 0.9);
+  overflow: hidden;
 }
 
 .search-section {
@@ -175,6 +171,27 @@ body::after {
 .player-container iframe {
   width: 100%;
   height: 100%;
+}
+
+/* Electron-managed fullscreen — player covers entire window */
+.player-fullscreen {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  background: #000;
+}
+
+.player-fullscreen .player-container {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: unset;
+}
+
+.player-fullscreen .player-info {
+  display: none;
 }
 
 .player-info {
@@ -821,6 +838,7 @@ body::after {
 /* ==================== PLAYLIST QUEUE ==================== */
 .playlist-queue {
   flex: 1;
+  min-height: 200px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -842,7 +860,15 @@ body::after {
 
 .queue-controls {
   display: flex;
-  gap: 6px;
+  gap: clamp(3px, 0.4vw, 6px);
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.queue-controls .btn-small {
+  font-size: clamp(9px, 1vh, 11px);
+  padding: clamp(3px, 0.4vh, 5px) clamp(6px, 0.6vw, 10px);
+  white-space: nowrap;
 }
 
 /* Neon button base */
@@ -1047,8 +1073,8 @@ body::after {
 
 /* ==================== PLAYLIST SYNC ==================== */
 .playlist-sync {
-  flex-shrink: 0;
-  padding: 12px 16px;
+  flex-shrink: 1;
+  padding: clamp(8px, 1vh, 12px) 16px;
   border-top: 1px solid rgba(0, 200, 255, 0.15);
   background: rgba(0, 0, 0, 0.4);
 }
@@ -1186,6 +1212,9 @@ body::after {
   border-radius: 12px;
   width: 480px;
   max-width: 90%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
   box-shadow: 0 0 30px rgba(0, 200, 255, 0.15), 0 0 60px rgba(157, 0, 255, 0.1);
 }
 
@@ -1218,6 +1247,9 @@ body::after {
 
 .settings-body {
   padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 .settings-section h3 {
@@ -1365,15 +1397,19 @@ body::after {
   text-align: center;
 }
 
+/*
+ * Logo subtitle — AMPED only in Electron.
+ * Fixed design values — zoom on .logo-wrap handles scaling.
+ */
 .logo-subtitle {
   display: block;
   font-family: 'Orbitron', sans-serif;
   font-weight: 900;
-  font-size: 36px;
+  font-size: 40px;
   letter-spacing: 12px;
   color: #00ffff;
   background: radial-gradient(ellipse at center, rgba(0, 0, 0, 0.7) 0%, transparent 70%);
-  padding: 8px 20px;
+  padding: 8px 0;
   box-sizing: border-box;
   text-shadow:
     0 3px 6px rgba(0, 0, 0, 0.9),
@@ -1383,10 +1419,10 @@ body::after {
     0 0 60px #00c8ff,
     0 0 80px rgba(0, 200, 255, 0.4);
   transform: rotate(-7deg);
-  margin-top: -60px;
-  margin-bottom: 36px;
+  margin-top: -70px;
+  margin-bottom: 10px;
   text-align: right;
-  padding-right: 8%;
+  padding-right: 17%;
   position: relative;
   z-index: 1;
   animation: neonFlicker 4s ease-in-out infinite;
@@ -1401,14 +1437,21 @@ body::after {
   97% { opacity: 1; }
 }
 
-/* Smaller subtitle on auth/lobby pages */
+/* Auth/lobby — fixed design values, zoom on card handles scaling */
+.auth-card .logo-wrap,
+.lobby-card .logo-wrap {
+  width: 100%;
+}
+
 .auth-card .logo-subtitle,
 .lobby-card .logo-subtitle {
-  font-size: 28px;
-  letter-spacing: 10px;
-  margin-top: -94px;
-  padding-right: 45px;
-  transform: rotate(-6deg);
+  font-size: 26px;
+  letter-spacing: 9px;
+  margin-top: -95px;
+  margin-bottom: 10px;
+  padding-right: 0;
+  text-align: center;
+  transform: rotate(-7deg) translateX(35px);
 }
 
 /* ==================== LOADING SCREEN ==================== */
@@ -1442,6 +1485,7 @@ body::after {
 
 .auth-card,
 .lobby-card {
+  zoom: var(--logo-scale, 1);
   background: rgba(10, 15, 30, 0.9);
   border: 1px solid rgba(0, 200, 255, 0.2);
   border-radius: 16px;
@@ -1449,7 +1493,6 @@ body::after {
   width: 100%;
   max-width: 420px;
   box-shadow: 0 0 30px rgba(0, 200, 255, 0.1), 0 0 60px rgba(157, 0, 255, 0.05);
-  transition: height 0.2s ease;
 }
 
 .lobby-card h2 {
@@ -1474,17 +1517,24 @@ body::after {
   border-top: 1px solid rgba(0, 200, 255, 0.1);
 }
 
-.btn-lobby-settings {
+.btn-lobby-settings-fixed {
+  position: fixed;
+  top: 14px;
+  right: 14px;
+  z-index: 10;
   background: none;
   border: none;
-  color: rgba(0, 200, 255, 0.4);
+  color: rgba(255, 64, 255, 0.6);
+  font-size: 20px;
+  padding: 4px;
   cursor: pointer;
-  font-size: 16px;
-  transition: color 0.2s;
+  transition: all 0.2s;
 }
 
-.btn-lobby-settings:hover {
-  color: #00c8ff;
+.btn-lobby-settings-fixed:hover {
+  color: #ff40ff;
+  text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
+  transform: rotate(45deg);
 }
 
 .btn-logout {
@@ -1516,7 +1566,6 @@ body::after {
   display: block;
   margin: 0 auto 40px;
   height: 200px;
-  min-height: 200px;
   max-width: 100%;
   object-fit: contain;
 }
@@ -1800,22 +1849,29 @@ body::after {
 
 /* ==================== QR CODE / INVITE PANEL ==================== */
 .qr-code-section {
-  padding: 16px;
+  padding: clamp(6px, 1vh, 16px);
   background: rgba(0, 0, 0, 0.6);
   border-bottom: 1px solid rgba(0, 200, 255, 0.15);
   text-align: center;
+  flex-shrink: 1;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .qr-code-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: clamp(2px, 0.4vh, 8px);
+  min-height: 0;
+  flex-shrink: 1;
 }
 
 .qr-title {
   color: #ff40ff;
-  font-size: 18px;
+  font-size: clamp(13px, 1.5vh, 18px);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 2px;
@@ -1825,18 +1881,31 @@ body::after {
 
 .qr-subtitle {
   color: #ccc;
-  font-size: 14px;
+  font-size: clamp(11px, 1.2vh, 14px);
   font-style: italic;
-  margin: -8px 0 4px;
+  margin: clamp(-4px, -0.5vh, -8px) 0 clamp(2px, 0.3vh, 4px);
 }
 
 .qr-code-wrapper {
-  padding: 12px;
+  padding: clamp(4px, 0.8vh, 8px);
   background: white;
   border-radius: 10px;
   box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
   position: relative;
   animation: qrPulse 3s ease-in-out infinite;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.qr-code-wrapper canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain;
 }
 
 @keyframes qrPulse {
@@ -1851,12 +1920,12 @@ body::after {
 .qr-info {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .qr-scan-label {
   color: #888;
-  font-size: 11px;
+  font-size: clamp(9px, 1vh, 11px);
   text-transform: uppercase;
   letter-spacing: 1px;
   margin: 0;
@@ -1864,14 +1933,14 @@ body::after {
 
 .qr-room-name {
   color: #fff;
-  font-size: 16px;
+  font-size: clamp(12px, 1.4vh, 16px);
   font-weight: 700;
   margin: 0;
 }
 
 .qr-invite-code {
   color: #9d4edd;
-  font-size: 14px;
+  font-size: clamp(11px, 1.2vh, 14px);
   margin: 0;
 }
 
@@ -1879,24 +1948,34 @@ body::after {
   font-family: monospace;
   color: #00ffff;
   font-weight: 700;
-  font-size: 20px;
+  font-size: clamp(14px, 1.8vh, 20px);
   letter-spacing: 3px;
   text-shadow: 0 0 8px rgba(0, 255, 255, 0.6);
 }
 
 .qr-actions {
   display: flex;
-  gap: 8px;
-  margin-top: 12px;
+  gap: clamp(4px, 0.5vw, 8px);
+  margin-top: clamp(4px, 0.8vh, 12px);
+  flex-wrap: wrap;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.qr-actions .btn-small {
+  font-size: clamp(9px, 1vh, 12px);
+  padding: clamp(3px, 0.5vh, 6px) clamp(6px, 1vw, 12px);
+  white-space: nowrap;
 }
 
 /* 3D flip between QR and Posse */
 .qr-flipper {
   perspective: 600px;
-  width: 200px;
-  height: 180px;
+  width: clamp(100px, 18vh, 200px);
+  height: clamp(100px, 18vh, 200px);
   position: relative;
   transform-style: preserve-3d;
+  flex-shrink: 1;
 }
 
 .qr-flipped .qr-code-wrapper {
@@ -1926,9 +2005,9 @@ body::after {
   background: #0d1117;
   border-radius: 10px;
   box-shadow: 0 0 25px rgba(255, 64, 255, 0.4);
-  padding: 16px;
+  padding: 10px;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: flex-start;
   overflow-y: auto;
 }
@@ -1943,12 +2022,13 @@ body::after {
 
 .guest-overlay-title {
   color: #ff40ff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
   text-shadow: 0 0 10px rgba(255, 64, 255, 0.5);
-  margin-bottom: 10px;
+  margin: 0 0 6px;
+  text-align: center;
   flex-shrink: 0;
 }
 
@@ -1963,33 +2043,35 @@ body::after {
 
 .guest-toggle-btn {
   color: #ff40ff !important;
-  min-width: 120px;
   text-align: center;
 }
 
 .guest-panel-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 5px 4px;
-  border-radius: 6px;
-  gap: 8px;
+  padding: 2px 0;
+  gap: 6px;
 }
 
 .guest-panel-name {
   color: #ddd;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   min-width: 0;
+  flex: 1 1 50%;
 }
 
 .guest-panel-time {
-  color: #ccc;
-  font-size: 0.7rem;
+  color: #888;
+  font-size: 0.65rem;
   white-space: nowrap;
-  flex-shrink: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+  flex: 0 1 50%;
+  text-align: right;
 }
 
 .guest-panel-item-left {

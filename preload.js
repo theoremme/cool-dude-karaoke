@@ -52,6 +52,16 @@ contextBridge.exposeInMainWorld('api', {
     ipcRenderer.removeAllListeners('sync-error');
   },
 
+  // Window fullscreen
+  setFullscreen: (fullscreen) => ipcRenderer.invoke('set-fullscreen', fullscreen),
+  isFullscreen: () => ipcRenderer.invoke('is-fullscreen'),
+  onExitFullscreen: (callback) => {
+    ipcRenderer.on('exit-fullscreen', () => callback());
+  },
+  removeFullscreenListeners: () => {
+    ipcRenderer.removeAllListeners('exit-fullscreen');
+  },
+
   // Backend URL
   backendUrlGet: () => ipcRenderer.invoke('backend-url-get'),
   backendUrlSet: (url) => ipcRenderer.invoke('backend-url-set', url),

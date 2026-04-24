@@ -51,6 +51,7 @@ const AuthPage = ({ onOpenSettings }) => {
 
   return (
     <div className="auth-page">
+      <button onClick={onOpenSettings} className="btn-lobby-settings-fixed">&#9881;</button>
       <div className="auth-card">
         <div className="logo-wrap">
           <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
@@ -126,9 +127,6 @@ const AuthPage = ({ onOpenSettings }) => {
             </button>
           </>
         )}
-        <div className="auth-settings">
-          <button onClick={onOpenSettings} className="btn-lobby-settings">⚙</button>
-        </div>
       </div>
     </div>
   );

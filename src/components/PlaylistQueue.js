@@ -73,7 +73,7 @@ const PlaylistQueue = () => {
                 disabled={currentIndex >= items.length - 1 && currentIndex !== -1}
                 title="Skip to next song"
               >
-                ⏭ Skip
+                ►❚ Skip
               </button>
               <button
                 className="btn-neon btn-small btn-danger"

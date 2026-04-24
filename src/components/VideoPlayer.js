@@ -22,6 +22,52 @@ const LOADING_MESSAGES = [
 const getRandomMessage = () =>
   LOADING_MESSAGES[Math.floor(Math.random() * LOADING_MESSAGES.length)];
 
+// Injected into webview to intercept Fullscreen API — Electron manages fullscreen instead
+const FULLSCREEN_OVERRIDE_JS = `
+(() => {
+  if (window.__cdkFsOverride) return;
+  window.__cdkFsOverride = true;
+
+  let fakeFullscreen = null;
+
+  Element.prototype.requestFullscreen = function() {
+    fakeFullscreen = this;
+    document.dispatchEvent(new Event('fullscreenchange'));
+    console.log('__CDK_ENTER_FS__');
+    return Promise.resolve();
+  };
+
+  // Vendor prefixed versions YouTube may use
+  Element.prototype.webkitRequestFullscreen = Element.prototype.requestFullscreen;
+  Element.prototype.webkitRequestFullScreen = Element.prototype.requestFullscreen;
+
+  document.exitFullscreen = function() {
+    fakeFullscreen = null;
+    document.dispatchEvent(new Event('fullscreenchange'));
+    console.log('__CDK_EXIT_FS__');
+    return Promise.resolve();
+  };
+  document.webkitExitFullscreen = document.exitFullscreen;
+
+  Object.defineProperty(document, 'fullscreenElement', {
+    get: () => fakeFullscreen,
+    configurable: true,
+  });
+  Object.defineProperty(document, 'webkitFullscreenElement', {
+    get: () => fakeFullscreen,
+    configurable: true,
+  });
+  Object.defineProperty(document, 'fullscreenEnabled', {
+    get: () => true,
+    configurable: true,
+  });
+  Object.defineProperty(document, 'webkitFullscreenEnabled', {
+    get: () => true,
+    configurable: true,
+  });
+})();
+`;
+
 const YOUTUBE_CLEANUP_CSS = `
   body > * { visibility: hidden !important; }
 
@@ -107,6 +153,10 @@ const VideoPlayer = () => {
   // Track CSS injection per navigation to prevent duplicates
   const cssInjectedForUrl = useRef(null);
 
+  // Track fullscreen state — managed at Electron window level, not YouTube level
+  const [playerFullscreen, setPlayerFullscreen] = useState(false);
+  const playerFullscreenRef = useRef(false);
+
   // Wait for video to actually be playing before revealing webview
   const waitForVideoPlaying = useCallback((webview) => {
     const check = setInterval(async () => {
@@ -140,9 +190,11 @@ const VideoPlayer = () => {
     const handleDomReady = () => {
       webviewReady.current = true;
       const currentUrl = webview.getURL();
-      // Only inject CSS once per navigation
+      // Only inject once per navigation
       if (cssInjectedForUrl.current !== currentUrl) {
         cssInjectedForUrl.current = currentUrl;
+        // Override Fullscreen API before YouTube initializes
+        webview.executeJavaScript(FULLSCREEN_OVERRIDE_JS).catch(() => {});
         webview.insertCSS(YOUTUBE_CLEANUP_CSS).then(() => {
           waitForVideoPlaying(webview);
         });
@@ -155,9 +207,29 @@ const VideoPlayer = () => {
       }
     };
 
+    // Listen for fullscreen requests from our injected override (via console.log markers)
+    const handleConsoleMessage = (e) => {
+      if (e.message === '__CDK_ENTER_FS__') {
+        if (!playerFullscreenRef.current) {
+          playerFullscreenRef.current = true;
+          setPlayerFullscreen(true);
+          window.api.setFullscreen(true);
+        }
+      } else if (e.message === '__CDK_EXIT_FS__') {
+        // User clicked YouTube's exit-fullscreen button inside the player
+        if (playerFullscreenRef.current) {
+          playerFullscreenRef.current = false;
+          setPlayerFullscreen(false);
+          window.api.setFullscreen(false);
+        }
+      }
+    };
+
     webview.addEventListener('dom-ready', handleDomReady);
+    webview.addEventListener('console-message', handleConsoleMessage);
     return () => {
       webview.removeEventListener('dom-ready', handleDomReady);
+      webview.removeEventListener('console-message', handleConsoleMessage);
       stopPolling();
     };
   }, [waitForVideoPlaying]);
@@ -273,6 +345,17 @@ const VideoPlayer = () => {
     }
   }, [isPlaying, currentItem, isPopout]);
 
+  // Exit fullscreen — triggered by main process via globalShortcut(Escape)
+  useEffect(() => {
+    window.api.onExitFullscreen(() => {
+      playerFullscreenRef.current = false;
+      setPlayerFullscreen(false);
+    });
+    return () => {
+      window.api.removeFullscreenListeners();
+    };
+  }, []);
+
   // Notify main process of playback state for adaptive sync polling
   useEffect(() => {
     if (window.api && window.api.syncSetPlayback) {
@@ -316,7 +399,7 @@ const VideoPlayer = () => {
     <div className="video-player">
       {/* Docked player */}
       <div
-        className="player-wrapper"
+        className={`player-wrapper ${playerFullscreen ? 'player-fullscreen' : ''}`}
         style={{ display: hasVideo && !isPopout ? 'block' : 'none' }}
       >
         <div className="player-container">
@@ -362,15 +445,6 @@ const VideoPlayer = () => {
         </div>
       )}
 
-      {/* No video placeholder */}
-      {!hasVideo && (
-        <div className="player-placeholder">
-          <div className="placeholder-content">
-            <div className="placeholder-icon">♪</div>
-            <p>Add songs and hit play to start the party!</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

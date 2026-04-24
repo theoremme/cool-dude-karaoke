@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, globalShortcut } = require('electron');
 const path = require('path');
 const http = require('http');
 const fs = require('fs');
@@ -375,6 +375,34 @@ ipcMain.handle('session-set', async (event, session) => {
 ipcMain.handle('session-clear', async () => {
   apiKeyManager.clearSession();
   return { success: true };
+});
+
+// --- Window Fullscreen ---
+
+let keepFullscreen = false;
+
+ipcMain.handle('set-fullscreen', async (event, fullscreen) => {
+  keepFullscreen = fullscreen;
+  if (mainWindow) {
+    if (fullscreen) {
+      mainWindow.setFullScreen(true);
+      globalShortcut.register('Escape', () => {
+        keepFullscreen = false;
+        if (mainWindow && !mainWindow.isDestroyed()) {
+          mainWindow.setFullScreen(false);
+          mainWindow.webContents.send('exit-fullscreen');
+        }
+        globalShortcut.unregister('Escape');
+      });
+    } else {
+      mainWindow.setFullScreen(false);
+      globalShortcut.unregister('Escape');
+    }
+  }
+});
+
+ipcMain.handle('is-fullscreen', async () => {
+  return mainWindow ? mainWindow.isFullScreen() : false;
 });
 
 // --- Vibe Playlist Generation ---

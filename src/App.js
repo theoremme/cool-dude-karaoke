@@ -17,6 +17,20 @@ import * as authService from './services/authService';
 import logo from './assets/cool-dude-karaoke-logo-v2-nobg.png';
 import './styles/App.css';
 
+// Scale logo container proportionally to viewport height
+function useLogoScale(designHeight = 270, minScale = 0.4, maxScale = 1) {
+  useEffect(() => {
+    const update = () => {
+      const vh = window.innerHeight;
+      const scale = Math.min(maxScale, Math.max(minScale, (vh * 0.25) / designHeight));
+      document.documentElement.style.setProperty('--logo-scale', scale);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [designHeight, minScale, maxScale]);
+}
+
 // The main host dashboard (existing UI)
 const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
   const { socket, connected, on, off, joinRoom, leaveRoom } = useSocket();
@@ -309,6 +323,7 @@ const Dashboard = ({ room, onLeaveRoom, onCloseRoom }) => {
 
 // View router: login -> lobby -> dashboard
 const AppRouter = () => {
+  useLogoScale();
   const { user, loading } = useAuth();
   const [currentRoom, setCurrentRoom] = useState(null);
   const [closeoutData, setCloseoutData] = useState(null); // { room, playlist }

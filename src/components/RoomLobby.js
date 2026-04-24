@@ -68,6 +68,7 @@ const RoomLobby = ({ onJoinRoom, onOpenSettings }) => {
 
   return (
     <div className="room-lobby">
+      <button onClick={onOpenSettings} className="btn-lobby-settings-fixed">&#9881;</button>
       <div className="lobby-card">
         <div className="logo-wrap">
           <img src={logo} alt="Cool Dude Karaoke" className="auth-logo" />
@@ -148,7 +149,6 @@ const RoomLobby = ({ onJoinRoom, onOpenSettings }) => {
         </div>
 
         <div className="lobby-footer">
-          <button onClick={onOpenSettings} className="btn-lobby-settings">⚙</button>
           <button onClick={logout} className="btn-logout">
             Logout
           </button>
