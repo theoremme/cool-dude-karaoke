@@ -1,54 +1,47 @@
-## Next Session Notes (updated 2026-04-14)
+## Next Session Notes (updated 2026-04-24)
 
 ### What was completed this session
-- Password reset flow via Resend (both Amped and Unplugged)
-- Beta whitelist with admin page (/admin, "Backstage" button on lobby)
-- Space Grotesk font added as secondary font across both apps
-- Lobby redesign: random greetings, hidden h2s, logout footer
-- Dynamic AMPED/UNPLUGGED logo switching based on playbackMode
-- Backend URL field added to Electron Settings panel
-- Default production URL changed to www.cooldudekaraoke.com
-- Settings accessible from login page and lobby (gear icon)
-- Amped checks if room is still active on socket reconnect (fixes stale room after sleep)
-- CSP updated for cooldudekaraoke.com
-- Guest socket fixed (no auth token) to prevent duplicate posse entries
-- Guest view now listens for mode-changed events (full library unlocked in amped mode)
-- Amped disconnect countdown shown on mobile and desktop Unplugged
-- Countdown shortened from 30s to 10s
-- "Add songs and hit play" video placeholder removed
-- Mobile tap-to-watch disabled
-- Resend domain configured (cooldudekaraoke.com verified, DNS records in Namecheap)
-- Tech stack reference doc created (docs/tech-stack.md)
-- Released v2.0, v2.1, v2.2, v2.3, v2.4
+- YouTube 403 fix for deployed builds (API keys injected via GitHub Actions secrets)
+- Responsive dynamic scaling for both Amped and Unplugged (logo, subtitle, QR/posse panel, playlist buttons, settings panel)
+- Fullscreen persistence between songs (Amped: intercepted Fullscreen API + Electron window fullscreen; Unplugged: preserved iframe via removed key prop)
+- QR/posse panel cleanup (removed Download QR, ResizeObserver-based display modes, initials for multi-word names)
+- QR URL changed from Railway to cooldudekaraoke.com
+- Settings button: magenta gear icon, fixed top-right on all views
+- Skip icon matched to Unplugged (►❚)
+- Removed "Add songs and hit play" placeholder from Amped
+- Settings panel: scrollable body, max-height 90vh
+- Unified logo scaling system: CSS zoom + --logo-scale JS variable
+- Released v2.7
 
 ### Known issues to investigate
-1. YouTube playlist sync ordering — sort fix added but still unverified with a real playlist
-2. Reconnection from Unplugged back to Amped can require a play/pause toggle to start video
-3. YouTube OAuth publishing in Electron uses "Open in Browser" workaround
-4. Amped disconnect countdown not confirmed working on production (tested locally only)
+1. YouTube API key was briefly exposed in git history — **rotate the key** in Google Cloud Console, update GitHub secret
+2. YouTube playlist sync ordering — still unverified with a real playlist
+3. Reconnection from Unplugged back to Amped can require a play/pause toggle to start video
+4. YouTube OAuth publishing in Electron uses "Open in Browser" workaround
 5. Persisted backend URL in electron-store can override defaults — users upgrading from old builds may have stale Railway URL saved
 6. Mac builds need testing (Windows confirmed working)
+7. Fullscreen persistence in Amped: brief flash possible when Electron enters fullscreen (YouTube's own fullscreen is intercepted but timing may vary)
+8. Web app Unplugged changes need deployment to Railway (committed and pushed but not deployed)
 
 ### Decisions made
-- Resend for transactional email, cooldudekaraoke.com verified as sending domain
-- Database table for beta whitelist (not env var), managed via /admin page
-- Space Grotesk as secondary font, Orbitron only for logo subtitle + closeout title
-- Logo dynamically switches AMPED/UNPLUGGED instead of separate badges
-- Guest socket connects without auth token to prevent userId collision with host
-- OAuth for login deferred to later phase
-- Amped disconnect countdown shortened to 10 seconds
-- www.cooldudekaraoke.com as default production backend URL
+- CSS zoom for proportional scaling (instead of transform: scale which doesn't affect layout)
+- Logo subtitle positioned with fixed design values inside zoomed containers (no calc/clamp drift)
+- Separate .logo-unplugged and .logo-amped CSS rules, scoped to .host-dashboard
+- YouTube Fullscreen API intercepted in Amped webview (fake fullscreenElement, console.log markers)
+- Unplugged fullscreen fixed by removing React key prop from YouTubeEmbed (preserves iframe)
+- GitHub Actions secrets for API keys (never in source code)
+- Download QR button removed from both apps
+- Posse panel: ResizeObserver for adaptive display (full → compact → count-only)
 
 ### Suggested priorities for next session
-1. End-to-end test on production (create room Unplugged, join Amped, verify logo switch, close Amped, verify countdown + fallback)
-2. Test password reset on production (forgot password → email → reset → login)
-3. Test beta whitelist on production (try registering with non-whitelisted email)
-4. Verify guest posse fix on production (guest shows as separate person)
-5. Set FROM_EMAIL on Railway to noreply@cooldudekaraoke.com (currently uses onboarding@resend.dev default)
-6. Phase 4 polish: consolidate YouTube cleanup CSS, remove dead webview-preload code, remove popout player code
+1. **Rotate YouTube API key** — leaked key may be compromised
+2. Deploy web app changes to Railway (responsive scaling, fullscreen fix, QR cleanup)
+3. End-to-end production test (create room, join, verify fullscreen persistence, QR code URL, scaling)
+4. Test on Mac
+5. Phase 4 polish: remove popout player code, dead webview-preload IPC events, consolidate YouTube cleanup CSS
+6. Set FROM_EMAIL on Railway to noreply@cooldudekaraoke.com
 7. Re-enable Amped download banner when ready
 8. Consider cooldudekaraoke.com landing page with download links
-9. Test on Mac
 
 ### Phase 4 cleanup list
 - Remove popout player code (main.js IPC handlers, POPOUT_CSS, polling; VideoPlayer.js popout state; preload.js listeners)
@@ -60,7 +53,7 @@
 - Set FROM_EMAIL env var on Railway to noreply@cooldudekaraoke.com
 
 ### Services status
-- Electron (Amped) — running at session end (local, connected to localhost:3000)
-- Web client (Vite) — running on port 5174
 - Backend (nodemon) — running on port 3000
+- Web client (Vite) — running on port 5173
 - Docker (karaoke-postgres) — running
+- Electron (Amped) — closed at session end
