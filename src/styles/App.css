@@ -644,8 +644,8 @@ body::after {
 }
 
 .vibe-version-thumb {
-  width: 80px;
-  height: 45px;
+  width: 128px;
+  height: 72px;
   object-fit: cover;
   border-radius: 4px;
   flex-shrink: 0;
@@ -1007,13 +1007,6 @@ body::after {
   text-shadow: 0 0 6px rgba(157, 0, 255, 0.5);
 }
 
-.queue-thumbnail {
-  width: 48px;
-  height: 27px;
-  object-fit: cover;
-  border-radius: 3px;
-  flex-shrink: 0;
-}
 
 .queue-item-info {
   flex: 1;

@@ -112,11 +112,6 @@ const PlaylistQueue = () => {
               <span className="queue-position">
                 {index === currentIndex && isPlaying ? '♪' : index + 1}
               </span>
-              <img
-                className="queue-thumbnail"
-                src={item.thumbnail}
-                alt={item.title}
-              />
               <div className="queue-item-info">
                 <p className="queue-item-title" title={item.title}>
                   {item.title}
